@@ -1747,15 +1747,15 @@ int setup_fields(THD *thd, TABLE_LIST *tables, List<Item> &fields,
     {
       if (insert_fields(thd,tables,((Item_field*) item)->db_name,
 			((Item_field*) item)->table_name,&it))
-	DBUG_RETURN(-1); /* purecov: inspected */
+	    DBUG_RETURN(-1); /* purecov: inspected */
     }
     else
     {
       if (item->fix_fields(thd,tables))
-	DBUG_RETURN(-1); /* purecov: inspected */
+	    DBUG_RETURN(-1); /* purecov: inspected */
       if (item->with_sum_func && item->type() != Item::SUM_FUNC_ITEM &&
-	  sum_func_list)
-	item->split_sum_func(*sum_func_list);
+	        sum_func_list)
+	    item->split_sum_func(*sum_func_list);
       thd->used_tables|=item->used_tables();
     }
   }
