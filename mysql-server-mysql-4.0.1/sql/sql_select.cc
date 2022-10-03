@@ -236,15 +236,15 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       Item *item;
       while ((item= it++))
       {
-	if (item->with_sum_func)
-	  flag|=1;
-	else if (!(flag & 2) && !item->const_item())
-	  flag|=2;
+	      if (item->with_sum_func)
+		      flag |= 1;
+	      else if (!(flag & 2) && !item->const_item())
+		      flag |= 2;
       }
       if (flag == 3)
       {
-	my_error(ER_MIX_OF_GROUP_FUNC_AND_FIELDS,MYF(0));
-	DBUG_RETURN(-1);
+		  my_error(ER_MIX_OF_GROUP_FUNC_AND_FIELDS, MYF(0));
+		  DBUG_RETURN(-1);
       }
     }
     TABLE_LIST *table;
@@ -265,10 +265,10 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     {
       if (!test_if_subpart(procedure->group,group))
       {						/* purecov: inspected */
-	my_message(0,"Can't handle procedures with differents groups yet",
-		   MYF(0));			/* purecov: inspected */
-	delete procedure;			/* purecov: inspected */
-	DBUG_RETURN(-1);			/* purecov: inspected */
+	    my_message(0,"Can't handle procedures with differents groups yet",
+		       MYF(0));			/* purecov: inspected */
+	    delete procedure;			/* purecov: inspected */
+	    DBUG_RETURN(-1);			/* purecov: inspected */
       }
     }
 #ifdef NOT_NEEDED
@@ -361,17 +361,17 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     {
       if (res < 0)
       {
-	error=return_zero_rows(result, tables, fields, !group,
-			       select_options,"No matching min/max row",
-			       having,procedure);
-	delete procedure;
-	DBUG_RETURN(error);
+		  error = return_zero_rows(result, tables, fields, !group,
+			  select_options, "No matching min/max row",
+			  having, procedure);
+		  delete procedure;
+		  DBUG_RETURN(error);
       }
       if (select_options & SELECT_DESCRIBE)
       {
-	describe_info(thd,"Select tables optimized away");
-	delete procedure;
-	DBUG_RETURN(0);
+		  describe_info(thd, "Select tables optimized away");
+		  delete procedure;
+		  DBUG_RETURN(0);
       }
       tables=0;					// All tables resolved
     }
@@ -386,16 +386,16 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       result->send_fields(fields,1);
       if (!having || having->val_int())
       {
-	if (join.do_send_rows && result->send_data(fields))
-	{
-	  result->send_error(0,NullS);		/* purecov: inspected */
-	  error=1;
-	}
-	else
-	  error=(int) result->send_eof();
+	    if (join.do_send_rows && result->send_data(fields))
+	    {
+	      result->send_error(0,NullS);		/* purecov: inspected */
+	      error=1;
+	    }
+	    else
+	      error=(int) result->send_eof();
       }
       else
-	error=(int) result->send_eof();
+	    error=(int) result->send_eof();
     }
     delete procedure;
     DBUG_RETURN(error);
@@ -630,21 +630,21 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
 			    HA_POS_ERROR) ||
 	  make_sum_func_list(&join,all_fields) ||
 	  alloc_group_fields(&join,group))
-	goto err;
+	    goto err;
       group=0;
     }
     else
     {
       if (make_sum_func_list(&join,all_fields))
-	goto err;
+	    goto err;
       if (!group && ! tmp_table->distinct && order && simple_order)
       {
-	DBUG_PRINT("info",("Sorting for order"));
-	thd->proc_info="Sorting for order";
-	if (create_sort_index(&join.join_tab[join.const_tables],order,
-			      HA_POS_ERROR))
-	  goto err;				/* purecov: inspected */
-	order=0;
+	    DBUG_PRINT("info",("Sorting for order"));
+	    thd->proc_info="Sorting for order";
+	    if (create_sort_index(&join.join_tab[join.const_tables],order,
+			          HA_POS_ERROR))
+	      goto err;				/* purecov: inspected */
+	    order=0;
       }
     }
 
@@ -660,16 +660,16 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       JOIN_TAB *join_tab=join.join_tab+join.tables-1;
       do
       {
-	if (used_tables & join_tab->table->map)
-	  break;
-	join_tab->not_used_in_distinct=1;
+		  if (used_tables & join_tab->table->map)
+			  break;
+		  join_tab->not_used_in_distinct = 1;
       } while (join_tab-- != join.join_tab);
       /* Optimize "select distinct b from t1 order by key_part_1 limit #" */
       if (order && skip_sort_order)
       {
-	(void) test_if_skip_sort_order(&join.join_tab[join.const_tables],
-				       order, thd->select_limit,0);
-	order=0;
+		  (void)test_if_skip_sort_order(&join.join_tab[join.const_tables],
+			  order, thd->select_limit, 0);
+		  order = 0;
       }
     }
 
@@ -684,15 +684,15 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     if (join.sort_and_group || tmp_table->group)
     {
       if (change_to_use_tmp_fields(all_fields))
-	goto err;
+	    goto err;
       join.tmp_table_param.field_count+=join.tmp_table_param.sum_func_count+
-	join.tmp_table_param.func_count;
+	    join.tmp_table_param.func_count;
       join.tmp_table_param.sum_func_count=join.tmp_table_param.func_count=0;
     }
     else
     {
       if (change_refs_to_tmp_fields(thd,all_fields))
-	goto err;
+	    goto err;
       join.tmp_table_param.field_count+=join.tmp_table_param.func_count;
       join.tmp_table_param.func_count=0;
     }
@@ -701,7 +701,7 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     if (tmp_table->group)
     {						// Already grouped
       if (!order && !no_order)
-	order=group;				/* order by group */
+	    order=group;				/* order by group */
       group=0;
     }
 
@@ -723,7 +723,7 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       /* Free first data from old join */
       join_free(&join);
       if (make_simple_join(&join,tmp_table))
-	goto err;
+	    goto err;
       calc_group_buffer(&join,group);
       count_field_types(&join.tmp_table_param,all_fields,
 			select_distinct && !group);
@@ -736,24 +736,24 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
 					  select_distinct && !group,
 					  1, 0,
 					  join.select_options)))
-	goto err;				/* purecov: inspected */
+	    goto err;				/* purecov: inspected */
       if (group)
       {
-	thd->proc_info="Creating sort index";
-	if (create_sort_index(join.join_tab,group,HA_POS_ERROR) ||
-	    alloc_group_fields(&join,group))
-	{
-	  free_tmp_table(thd,tmp_table2);	/* purecov: inspected */
-	  goto err;				/* purecov: inspected */
-	}
-	group=0;
+	    thd->proc_info="Creating sort index";
+	    if (create_sort_index(join.join_tab,group,HA_POS_ERROR) ||
+	        alloc_group_fields(&join,group))
+	    {
+	      free_tmp_table(thd,tmp_table2);	/* purecov: inspected */
+	      goto err;				/* purecov: inspected */
+	    }
+	    group=0;
       }
       thd->proc_info="Copying to group table";
       if (make_sum_func_list(&join,all_fields) ||
 	  do_select(&join,(List<Item> *) 0,tmp_table2,0))
       {
-	free_tmp_table(thd,tmp_table2);
-	goto err;				/* purecov: inspected */
+	    free_tmp_table(thd,tmp_table2);
+	    goto err;				/* purecov: inspected */
       }
       end_read_record(&join.join_tab->read_record);
       free_tmp_table(thd,tmp_table);
@@ -762,7 +762,7 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       join.join_tab[0].table=0;			// Table is freed
 
       if (change_to_use_tmp_fields(all_fields)) // No sum funcs anymore
-	goto err;
+	    goto err;
       join.tmp_table_param.field_count+=join.tmp_table_param.sum_func_count;
       join.tmp_table_param.sum_func_count=0;
     }
@@ -775,9 +775,9 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     {
       thd->proc_info="Removing duplicates";
       if (having)
-	having->update_used_tables();
+	    having->update_used_tables();
       if (remove_duplicates(&join,tmp_table,fields, having))
-	goto err;				/* purecov: inspected */
+	    goto err;				/* purecov: inspected */
       having=0;
       select_distinct=0;
     }
@@ -816,20 +816,20 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       Item* sort_table_cond=make_cond_for_table(having,used_tables,used_tables);
       if (sort_table_cond)
       {
-	if (!table->select)
-	  if (!(table->select=new SQL_SELECT))
-	    goto err;
-	if (!table->select->cond)
-	  table->select->cond=sort_table_cond;
-	else					// This should never happen
-	  if (!(table->select->cond=new Item_cond_and(table->select->cond,
-						      sort_table_cond)))
-	    goto err;
-	table->select_cond=table->select->cond;
-	DBUG_EXECUTE("where",print_where(table->select->cond,
-					 "select and having"););
-	having=make_cond_for_table(having,~ (table_map) 0,~used_tables);
-	DBUG_EXECUTE("where",print_where(conds,"having after sort"););
+	    if (!table->select)
+	      if (!(table->select=new SQL_SELECT))
+	        goto err;
+	    if (!table->select->cond)
+	      table->select->cond=sort_table_cond;
+	    else					// This should never happen
+	      if (!(table->select->cond=new Item_cond_and(table->select->cond,
+						          sort_table_cond)))
+	        goto err;
+	    table->select_cond=table->select->cond;
+	    DBUG_EXECUTE("where",print_where(table->select->cond,
+					     "select and having"););
+	    having=make_cond_for_table(having,~ (table_map) 0,~used_tables);
+	    DBUG_EXECUTE("where",print_where(conds,"having after sort"););
       }
     }
     if (create_sort_index(&join.join_tab[join.const_tables],
