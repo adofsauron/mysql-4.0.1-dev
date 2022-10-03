@@ -2960,10 +2960,10 @@ change_cond_ref_to_const(I_List<COND_CMP> *save_list,Item *and_father,
       if ((functype == Item_func::EQ_FUNC || functype == Item_func::EQUAL_FUNC)
 	  && and_father != cond && !left_item->const_item())
       {
-	cond->marker=1;
-	COND_CMP *tmp2;
-	if ((tmp2=new COND_CMP(and_father,func)))
-	  save_list->push_back(tmp2);
+		  cond->marker = 1;
+		  COND_CMP* tmp2;
+		  if ((tmp2 = new COND_CMP(and_father, func)))
+			  save_list->push_back(tmp2);
       }
       func->set_cmp_func(item_cmp_type(func->arguments()[0]->result_type(),
 				       func->arguments()[1]->result_type()));
@@ -2979,12 +2979,12 @@ change_cond_ref_to_const(I_List<COND_CMP> *save_list,Item *and_father,
       if ((functype == Item_func::EQ_FUNC || functype == Item_func::EQUAL_FUNC)
 	  && and_father != cond && !right_item->const_item())
       {
-	func->arguments()[0] = func->arguments()[1]; // For easy check
-	func->arguments()[1] = value;
-	cond->marker=1;
-	COND_CMP *tmp2;
-	if ((tmp2=new COND_CMP(and_father,func)))
-	  save_list->push_back(tmp2);
+	    func->arguments()[0] = func->arguments()[1]; // For easy check
+	    func->arguments()[1] = value;
+	    cond->marker=1;
+	    COND_CMP *tmp2;
+	    if ((tmp2=new COND_CMP(and_father,func)))
+	      save_list->push_back(tmp2);
       }
       func->set_cmp_func(item_cmp_type(func->arguments()[0]->result_type(),
 				       func->arguments()[1]->result_type()));
