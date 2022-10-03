@@ -1914,15 +1914,15 @@ int setup_conds(THD *thd,TABLE_LIST *tables,COND **conds)
       /* Make a join an a expression */
       thd->where="on clause";
       if (table->on_expr->fix_fields(thd,tables))
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
       thd->cond_count++;
 
       /* If it's a normal join, add the ON/USING expression to the WHERE */
       if (!table->outer_join)
       {
-	if (!(*conds=and_conds(*conds, table->on_expr)))
-	  DBUG_RETURN(1);
-	table->on_expr=0;
+		  if (!(*conds = and_conds(*conds, table->on_expr)))
+			  DBUG_RETURN(1);
+		  table->on_expr = 0;
       }
     }
     if (table->natural_join)
@@ -1932,41 +1932,41 @@ int setup_conds(THD *thd,TABLE_LIST *tables,COND **conds)
       TABLE *t2=table->natural_join->table;
       Item_cond_and *cond_and=new Item_cond_and();
       if (!cond_and)				// If not out of memory
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
 
       uint i,j;
       for (i=0 ; i < t1->fields ; i++)
       {
-	// TODO: This could be optimized to use hashed names if t2 had a hash
-	for (j=0 ; j < t2->fields ; j++)
-	{
-	  if (!my_strcasecmp(t1->field[i]->field_name,
-			     t2->field[j]->field_name))
-	  {
-	    Item_func_eq *tmp=new Item_func_eq(new Item_field(t1->field[i]),
-					       new Item_field(t2->field[j]));
-	    if (!tmp)
-	      DBUG_RETURN(1);
-	    tmp->fix_length_and_dec();	// Update cmp_type
-	    tmp->const_item_cache=0;
-	    /* Mark field used for table cache */
-	    t1->field[i]->query_id=t2->field[j]->query_id=thd->query_id;
-	    cond_and->list.push_back(tmp);
-	    t1->used_keys&= t1->field[i]->part_of_key;
-	    t2->used_keys&= t2->field[j]->part_of_key;
-	    break;
-	  }
-	}
+	    // TODO: This could be optimized to use hashed names if t2 had a hash
+	    for (j=0 ; j < t2->fields ; j++)
+	    {
+	      if (!my_strcasecmp(t1->field[i]->field_name,
+			         t2->field[j]->field_name))
+	      {
+	        Item_func_eq *tmp=new Item_func_eq(new Item_field(t1->field[i]),
+					           new Item_field(t2->field[j]));
+	        if (!tmp)
+	          DBUG_RETURN(1);
+	        tmp->fix_length_and_dec();	// Update cmp_type
+	        tmp->const_item_cache=0;
+	        /* Mark field used for table cache */
+	        t1->field[i]->query_id=t2->field[j]->query_id=thd->query_id;
+	        cond_and->list.push_back(tmp);
+	        t1->used_keys&= t1->field[i]->part_of_key;
+	        t2->used_keys&= t2->field[j]->part_of_key;
+	        break;
+	      }
+	    }
       }
       cond_and->used_tables_cache= t1->map | t2->map;
       thd->cond_count+=cond_and->list.elements;
       if (!table->outer_join)			// Not left join
       {
-	if (!(*conds=and_conds(*conds, cond_and)))
-	  DBUG_RETURN(1);
+	    if (!(*conds=and_conds(*conds, cond_and)))
+	      DBUG_RETURN(1);
       }
       else
-	table->on_expr=and_conds(table->on_expr,cond_and);
+	    table->on_expr=and_conds(table->on_expr,cond_and);
     }
   }
   DBUG_RETURN(test(thd->fatal_error));
