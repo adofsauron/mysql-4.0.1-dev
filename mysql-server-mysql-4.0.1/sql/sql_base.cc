@@ -1806,7 +1806,7 @@ bool setup_tables(TABLE_LIST *tables)
     {
       /* Clear query_id that may have been set by previous select */
       for (Field **ptr=table->field ; *ptr ; ptr++)
-	(   *ptr)->query_id=0;
+	    (*ptr)->query_id=0;
     }
   }
   if (tablenr > MAX_TABLES)
