@@ -45,150 +45,150 @@ int opt_sum_query(TABLE_LIST *tables, List<Item> &all_fields,COND *conds)
       Item_sum *item_sum= (((Item_sum*) item));
       switch (item_sum->sum_func()) {
       case Item_sum::COUNT_FUNC:
-	/*
-	  If the expr in count(expr) can never be null we can change this
-	  to the number of rows in the tables
-	*/
-	if (!conds && !((Item_sum_count*) item)->args[0]->maybe_null)
-	{
-	  longlong count=1;
-	  TABLE_LIST *table;
-	  for (table=tables; table ; table=table->next)
-	  {
-	    if (table->on_expr || (table->table->file->option_flag() &
-				   HA_NOT_EXACT_COUNT))
-	    {
-	      const_result=0;			// Can't optimize left join
-	      break;
-	    }
-	    tables->table->file->info(HA_STATUS_VARIABLE | HA_STATUS_NO_LOCK);
-	    count*= table->table->file->records;
-	  }
-	  if (!table)
-	  {
-	    ((Item_sum_count*) item)->make_const(count);
-	    recalc_const_item=1;
-	  }
-	}
-	else
-	  const_result=0;
-	break;
+		/*
+		  If the expr in count(expr) can never be null we can change this
+		  to the number of rows in the tables
+		*/
+		if (!conds && !((Item_sum_count*) item)->args[0]->maybe_null)
+		{
+		  longlong count=1;
+		  TABLE_LIST *table;
+		  for (table=tables; table ; table=table->next)
+		  {
+			if (table->on_expr || (table->table->file->option_flag() &
+					   HA_NOT_EXACT_COUNT))
+			{
+			  const_result=0;			// Can't optimize left join
+			  break;
+			}
+			tables->table->file->info(HA_STATUS_VARIABLE | HA_STATUS_NO_LOCK);
+			count*= table->table->file->records;
+		  }
+		  if (!table)
+		  {
+			((Item_sum_count*) item)->make_const(count);
+			recalc_const_item=1;
+		  }
+		}
+		else
+		  const_result=0;
+		break;
       case Item_sum::MIN_FUNC:
       {
-	/*
-	  If MIN(expr) is the first part of a key or if all previous
-	  parts of the key is found in the COND, then we can use
-	  indexes to find the key.
-	*/
-	Item *expr=item_sum->args[0];
-	if (expr->type() == Item::FIELD_ITEM)
-	{
-	  byte key_buff[MAX_KEY_LENGTH];
-	  TABLE_REF ref;
-	  ref.key_buff=key_buff;
+		/*
+		  If MIN(expr) is the first part of a key or if all previous
+		  parts of the key is found in the COND, then we can use
+		  indexes to find the key.
+		*/
+		Item *expr=item_sum->args[0];
+		if (expr->type() == Item::FIELD_ITEM)
+		{
+		  byte key_buff[MAX_KEY_LENGTH];
+		  TABLE_REF ref;
+		  ref.key_buff=key_buff;
 
-	  if (!find_range_key(&ref, ((Item_field*) expr)->field,conds))
-	  {
-	    const_result=0;
-	    break;
-	  }
-	  TABLE *table=((Item_field*) expr)->field->table;
-	  bool error=table->file->index_init((uint) ref.key);
-	  if (!ref.key_length)
-	    error=table->file->index_first(table->record[0]) !=0;
-	  else
-	    error=table->file->index_read(table->record[0],key_buff,
-					  ref.key_length,
-					  HA_READ_KEY_OR_NEXT) ||
-	      key_cmp(table, key_buff, ref.key, ref.key_length);
-	  if (table->key_read)
-	  {
-	    table->key_read=0;
-	    table->file->extra(HA_EXTRA_NO_KEYREAD);
-	  }
-	  table->file->index_end();
-	  if (error)
-	    return -1;				// Impossible query
-	  removed_tables|= table->map;
-	}
-	else if (!expr->const_item())		// This is VERY seldom false
-	{
-	  const_result=0;
-	  break;
-	}
-	((Item_sum_min*) item_sum)->reset();
-	((Item_sum_min*) item_sum)->make_const();
-	recalc_const_item=1;
-	break;
+		  if (!find_range_key(&ref, ((Item_field*) expr)->field,conds))
+		  {
+			const_result=0;
+			break;
+		  }
+		  TABLE *table=((Item_field*) expr)->field->table;
+		  bool error=table->file->index_init((uint) ref.key);
+		  if (!ref.key_length)
+			error=table->file->index_first(table->record[0]) !=0;
+		  else
+			error=table->file->index_read(table->record[0],key_buff,
+						  ref.key_length,
+						  HA_READ_KEY_OR_NEXT) ||
+			  key_cmp(table, key_buff, ref.key, ref.key_length);
+		  if (table->key_read)
+		  {
+			table->key_read=0;
+			table->file->extra(HA_EXTRA_NO_KEYREAD);
+		  }
+		  table->file->index_end();
+		  if (error)
+			return -1;				// Impossible query
+		  removed_tables|= table->map;
+		}
+		else if (!expr->const_item())		// This is VERY seldom false
+		{
+		  const_result=0;
+		  break;
+		}
+		((Item_sum_min*) item_sum)->reset();
+		((Item_sum_min*) item_sum)->make_const();
+		recalc_const_item=1;
+		break;
       }
       case Item_sum::MAX_FUNC:
       {
-	/*
-	  If MAX(expr) is the first part of a key or if all previous
-	  parts of the key is found in the COND, then we can use
-	  indexes to find the key.
-	*/
-	Item *expr=item_sum->args[0];
-	if (expr->type() == Item::FIELD_ITEM)
-	{
-	  byte key_buff[MAX_KEY_LENGTH];
-	  TABLE_REF ref;
-	  ref.key_buff=key_buff;
+		/*
+		  If MAX(expr) is the first part of a key or if all previous
+		  parts of the key is found in the COND, then we can use
+		  indexes to find the key.
+		*/
+		Item *expr=item_sum->args[0];
+		if (expr->type() == Item::FIELD_ITEM)
+		{
+		  byte key_buff[MAX_KEY_LENGTH];
+		  TABLE_REF ref;
+		  ref.key_buff=key_buff;
 
-	  if (!find_range_key(&ref, ((Item_field*) expr)->field,conds))
-	  {
-	    const_result=0;
-	    break;
-	  }
-	  TABLE *table=((Item_field*) expr)->field->table;
-	  if ((table->file->option_flag() & HA_NOT_READ_AFTER_KEY))
-	  {
-	    const_result=0;
-	    break;
-	  }
-	  bool error=table->file->index_init((uint) ref.key);
+		  if (!find_range_key(&ref, ((Item_field*) expr)->field,conds))
+		  {
+			const_result=0;
+			break;
+		  }
+		  TABLE *table=((Item_field*) expr)->field->table;
+		  if ((table->file->option_flag() & HA_NOT_READ_AFTER_KEY))
+		  {
+			const_result=0;
+			break;
+		  }
+		  bool error=table->file->index_init((uint) ref.key);
 
-	  if (!ref.key_length)
-	    error=table->file->index_last(table->record[0]) !=0;
-	  else
-	  {
-	    (void) table->file->index_read(table->record[0], key_buff,
-					   ref.key_length,
-					   HA_READ_AFTER_KEY);
-	    error=table->file->index_prev(table->record[0]) ||
-	      key_cmp(table,key_buff,ref.key,ref.key_length);
-	  }
-	  if (table->key_read)
-	  {
-	    table->key_read=0;
-	    table->file->extra(HA_EXTRA_NO_KEYREAD);
-	  }
-	  table->file->index_end();
-	  if (error)
-	    return -1;				// Impossible query
-	  removed_tables|= table->map;
-	}
-	else if (!expr->const_item())		// This is VERY seldom false
-	{
-	  const_result=0;
-	  break;
-	}
-	((Item_sum_min*) item_sum)->reset();
-	((Item_sum_min*) item_sum)->make_const();
-	recalc_const_item=1;
-	break;
+		  if (!ref.key_length)
+			error=table->file->index_last(table->record[0]) !=0;
+		  else
+		  {
+			(void) table->file->index_read(table->record[0], key_buff,
+						   ref.key_length,
+						   HA_READ_AFTER_KEY);
+			error=table->file->index_prev(table->record[0]) ||
+			  key_cmp(table,key_buff,ref.key,ref.key_length);
+		  }
+		  if (table->key_read)
+		  {
+			table->key_read=0;
+			table->file->extra(HA_EXTRA_NO_KEYREAD);
+		  }
+		  table->file->index_end();
+		  if (error)
+			return -1;				// Impossible query
+		  removed_tables|= table->map;
+		}
+		else if (!expr->const_item())		// This is VERY seldom false
+		{
+		  const_result=0;
+		  break;
+		}
+		((Item_sum_min*) item_sum)->reset();
+		((Item_sum_min*) item_sum)->make_const();
+		recalc_const_item=1;
+		break;
       }
       default:
-	const_result=0;
-	break;
+		  const_result = 0;
+		  break;
       }
     }
     else if (const_result)
     {
       if (recalc_const_item)
-	item->update_used_tables();
+		item->update_used_tables();
       if (!item->const_item())
-	const_result=0;
+		const_result=0;
     }
   }
   if (conds && (conds->used_tables() & ~ removed_tables))
