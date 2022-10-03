@@ -438,8 +438,8 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       /* BDB tables require that we call index_end() before doing an unlock */
       if ((*table)->key_read)
       {
-	(*table)->key_read=0;
-	(*table)->file->extra(HA_EXTRA_NO_KEYREAD);
+		  (*table)->key_read = 0;
+		  (*table)->file->extra(HA_EXTRA_NO_KEYREAD);
       }
       (*table)->file->index_end();
     }
@@ -714,8 +714,8 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
     */
 
     if (group && (!test_if_subpart(group,order) || select_distinct) ||
-	(select_distinct &&
-	 join.tmp_table_param.using_indirect_summary_function))
+	    (select_distinct &&
+	    join.tmp_table_param.using_indirect_summary_function))
     {					/* Must copy to another table */
       TABLE *tmp_table2;
       DBUG_PRINT("info",("Creating group table"));
@@ -750,7 +750,7 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
       }
       thd->proc_info="Copying to group table";
       if (make_sum_func_list(&join,all_fields) ||
-	  do_select(&join,(List<Item> *) 0,tmp_table2,0))
+	    do_select(&join,(List<Item> *) 0,tmp_table2,0))
       {
 	    free_tmp_table(thd,tmp_table2);
 	    goto err;				/* purecov: inspected */
@@ -789,8 +789,7 @@ mysql_select(THD *thd,TABLE_LIST *tables,List<Item> &fields,COND *conds,
   }
   if (procedure)
   {
-    if (procedure->change_columns(fields) ||
-	result->prepare(fields))
+    if (procedure->change_columns(fields) || result->prepare(fields))
       goto err;
     count_field_types(&join.tmp_table_param,all_fields,0);
   }
