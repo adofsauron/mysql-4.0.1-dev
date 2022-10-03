@@ -6162,10 +6162,10 @@ setup_group(THD *thd,TABLE_LIST *tables,List<Item> &fields,
     {
       if (item->type() != Item::SUM_FUNC_ITEM && !item->marker)
       {
-	my_printf_error(ER_WRONG_FIELD_WITH_GROUP,
-			ER(ER_WRONG_FIELD_WITH_GROUP),
-			MYF(0),item->full_name());
-	return 1;
+		  my_printf_error(ER_WRONG_FIELD_WITH_GROUP,
+			  ER(ER_WRONG_FIELD_WITH_GROUP),
+			  MYF(0), item->full_name());
+		  return 1;
       }
     }
   }
