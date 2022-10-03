@@ -1743,7 +1743,7 @@ int setup_fields(THD *thd, TABLE_LIST *tables, List<Item> &fields,
   while ((item=it++))
   {
     if (item->type() == Item::FIELD_ITEM &&
-	((Item_field*) item)->field_name[0] == '*')
+	    ((Item_field*) item)->field_name[0] == '*')
     {
       if (insert_fields(thd,tables,((Item_field*) item)->db_name,
 			((Item_field*) item)->table_name,&it))
