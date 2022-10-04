@@ -2960,8 +2960,8 @@ TABLE_LIST *add_table_to_list(Table_ident *table, LEX_STRING *alias,
     {
       if (!strcmp(alias_str,tables->name) && !strcmp(ptr->db, tables->db))
       {
-	net_printf(&thd->net,ER_NONUNIQ_TABLE,alias_str); /* purecov: tested */
-	DBUG_RETURN(0);				/* purecov: tested */
+	    net_printf(&thd->net,ER_NONUNIQ_TABLE,alias_str); /* purecov: tested */
+	    DBUG_RETURN(0);				/* purecov: tested */
       }
     }
   }
