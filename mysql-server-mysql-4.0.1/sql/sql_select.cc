@@ -3104,44 +3104,44 @@ remove_eq_conds(COND *cond,Item::cond_result *cond_value)
       if (!new_item)
       {
 #ifdef DELETE_ITEMS
-	delete item;				// This may be shared
+	    delete item;				// This may be shared
 #endif
-	li.remove();
+	    li.remove();
       }
       else if (item != new_item)
       {
 #ifdef DELETE_ITEMS
-	delete item;				// This may be shared
+	    delete item;				// This may be shared
 #endif
 	VOID(li.replace(new_item));
       }
       if (*cond_value == Item::COND_UNDEF)
-	*cond_value=tmp_cond_value;
+	    *cond_value=tmp_cond_value;
       switch (tmp_cond_value) {
       case Item::COND_OK:			// Not TRUE or FALSE
-	if (and_level || *cond_value == Item::COND_FALSE)
-	  *cond_value=tmp_cond_value;
-	break;
+		  if (and_level || *cond_value == Item::COND_FALSE)
+			  *cond_value = tmp_cond_value;
+		  break;
       case Item::COND_FALSE:
-	if (and_level)
-	{
-	  *cond_value=tmp_cond_value;
-	  return (COND*) 0;			// Always false
-	}
-	break;
+	    if (and_level)
+	    {
+	      *cond_value=tmp_cond_value;
+	      return (COND*) 0;			// Always false
+	    }
+	    break;
       case Item::COND_TRUE:
-	if (!and_level)
-	{
-	  *cond_value= tmp_cond_value;
-	  return (COND*) 0;			// Always true
-	}
-	break;
+	    if (!and_level)
+	    {
+	      *cond_value= tmp_cond_value;
+	      return (COND*) 0;			// Always true
+	    }
+	    break;
       case Item::COND_UNDEF:			// Impossible
-	break; /* purecov: deadcode */
+	    break; /* purecov: deadcode */
       }
     }
     if (!((Item_cond*) cond)->argument_list()->elements ||
-	*cond_value != Item::COND_OK)
+	    *cond_value != Item::COND_OK)
       return (COND*) 0;
     if (((Item_cond*) cond)->argument_list()->elements == 1)
     {						// Remove list
@@ -3170,20 +3170,20 @@ remove_eq_conds(COND *cond,Item::cond_result *cond_value)
     {
       Field *field=((Item_field*) args[0])->field;
       if (field->flags & AUTO_INCREMENT_FLAG && !field->table->maybe_null &&
-	  (thd->options & OPTION_AUTO_IS_NULL) &&
-	  thd->insert_id())
+	    (thd->options & OPTION_AUTO_IS_NULL) &&
+	    thd->insert_id())
       {
-	query_cache_abort(&thd->net);
-	COND *new_cond;
-	if ((new_cond= new Item_func_eq(args[0],
-					new Item_int("last_insert_id()",
-						     thd->insert_id(),
-						     21))))
-	{
-	  cond=new_cond;
-	  cond->fix_fields(thd,0);
-	}
-	thd->insert_id(0);		// Clear for next request
+	    query_cache_abort(&thd->net);
+	    COND *new_cond;
+	    if ((new_cond= new Item_func_eq(args[0],
+					    new Item_int("last_insert_id()",
+						         thd->insert_id(),
+						         21))))
+	    {
+	      cond=new_cond;
+	      cond->fix_fields(thd,0);
+	    }
+	    thd->insert_id(0);		// Clear for next request
       }
       /* fix to replace 'NULL' dates with '0' (shreeve@uci.edu) */
       else if (((field->type() == FIELD_TYPE_DATE) ||
@@ -3191,12 +3191,12 @@ remove_eq_conds(COND *cond,Item::cond_result *cond_value)
 		(field->flags & NOT_NULL_FLAG) &&
 	       !field->table->maybe_null)
       {
-	COND *new_cond;
-	if ((new_cond= new Item_func_eq(args[0],new Item_int("0", 0, 2))))
-	{
-	  cond=new_cond;
-	  cond->fix_fields(thd,0);
-	}
+		  COND* new_cond;
+		  if ((new_cond = new Item_func_eq(args[0], new Item_int("0", 0, 2))))
+		  {
+			  cond = new_cond;
+			  cond->fix_fields(thd, 0);
+		  }
       }
     }
   }
