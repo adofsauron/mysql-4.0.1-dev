@@ -1029,43 +1029,43 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
       /* check if table can be read by key or table only uses const refs */
       if ((keyuse=s->keyuse))
       {
-	TABLE *table=s->table;
-	s->type= JT_REF;
-	while (keyuse->table == table)
-	{
-	  start_keyuse=keyuse;
-	  key=keyuse->key;
-	  s->keys|= (key_map) 1 << key;		// QQ: remove this ?
-
-	  refs=const_ref=eq_part=0;
-	  do
-	  {
-	    if (keyuse->val->type() != Item::NULL_ITEM)
+	    TABLE *table=s->table;
+	    s->type= JT_REF;
+	    while (keyuse->table == table)
 	    {
-	      if (!((~const_table_map) & keyuse->used_tables))
-		const_ref|= (key_map) 1 << keyuse->keypart;
-	      else
-		refs|=keyuse->used_tables;
-	      eq_part|= (uint) 1 << keyuse->keypart;
-	    }
-	    keyuse++;
-	  } while (keyuse->table == table && keyuse->key == key);
+	      start_keyuse=keyuse;
+	      key=keyuse->key;
+	      s->keys|= (key_map) 1 << key;		// QQ: remove this ?
 
-	  if (eq_part == PREV_BITS(uint,table->key_info[key].key_parts) &&
-	      (table->key_info[key].flags & HA_NOSAME))
-	  {
-	    if (const_ref == eq_part)
-	    {					// Found everything for ref.
-	      s->type=JT_CONST;
-	      const_table_map|=table->map;
-	      set_position(join,const_count++,s,start_keyuse);
-	      ref_changed = 1;
-	      break;
+	      refs=const_ref=eq_part=0;
+	      do
+	      {
+	        if (keyuse->val->type() != Item::NULL_ITEM)
+	        {
+	          if (!((~const_table_map) & keyuse->used_tables))
+		        const_ref|= (key_map) 1 << keyuse->keypart;
+	          else
+		        refs|=keyuse->used_tables;
+	          eq_part|= (uint) 1 << keyuse->keypart;
+	        }
+	        keyuse++;
+	      } while (keyuse->table == table && keyuse->key == key);
+
+	      if (eq_part == PREV_BITS(uint,table->key_info[key].key_parts) &&
+	          (table->key_info[key].flags & HA_NOSAME))
+	      {
+	        if (const_ref == eq_part)
+	        {					// Found everything for ref.
+	          s->type=JT_CONST;
+	          const_table_map|=table->map;
+	          set_position(join,const_count++,s,start_keyuse);
+	          ref_changed = 1;
+	          break;
+	        }
+	        else
+	          found_ref|= refs;		// Table is const if all refs are const
+	      }
 	    }
-	    else
-	      found_ref|= refs;		// Table is const if all refs are const
-	  }
-	}
       }
     }
   } while (const_table_map & found_ref && ref_changed);
@@ -1096,9 +1096,9 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
     {
       ha_rows records;
       if (!select)
-	select=make_select(s->table,const_table_map,
-			   0,
-			   and_conds(conds,s->on_expr),&error);
+		  select = make_select(s->table, const_table_map,
+			  0,
+			  and_conds(conds, s->on_expr), &error);
       records=get_quick_record_count(select,s->table, s->const_keys,
 				     join->row_limit);
       s->quick=select->quick;
@@ -1107,8 +1107,8 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
       select->read_tables=const_table_map;
       if (records != HA_POS_ERROR)
       {
-	s->found_records=records;
-	s->read_time= (ha_rows) (s->quick ? s->quick->read_time : 0.0);
+		  s->found_records = records;
+		  s->read_time = (ha_rows)(s->quick ? s->quick->read_time : 0.0);
       }
     }
   }
