@@ -2035,7 +2035,7 @@ bool setup_tables(TABLE_LIST *tables)
       key_map map= get_key_map_from_key_list(table,
 					     table_list->use_index);
       if (map == ~(key_map) 0)
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
       table->keys_in_use_for_query=map;
     }
     if (table_list->ignore_index)
@@ -2043,7 +2043,7 @@ bool setup_tables(TABLE_LIST *tables)
       key_map map= get_key_map_from_key_list(table,
 					     table_list->ignore_index);
       if (map == ~(key_map) 0)
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
       table->keys_in_use_for_query &= ~map;
     }
     table->used_keys &= table->keys_in_use_for_query;
@@ -2051,7 +2051,7 @@ bool setup_tables(TABLE_LIST *tables)
     {
       /* Clear query_id that may have been set by previous select */
       for (Field **ptr=table->field ; *ptr ; ptr++)
-	(*ptr)->query_id=0;
+	    (*ptr)->query_id=0;
     }
   }
   if (tablenr > MAX_TABLES)
