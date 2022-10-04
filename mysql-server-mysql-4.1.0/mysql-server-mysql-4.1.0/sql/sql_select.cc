@@ -5607,38 +5607,38 @@ end_send(JOIN *join, JOIN_TAB *join_tab __attribute__((unused)),
     if (error)
       DBUG_RETURN(-1); /* purecov: inspected */
     if (++join->send_records >= join->unit->select_limit_cnt &&
-	join->do_send_rows)
+	    join->do_send_rows)
     {
       if (join->select_options & OPTION_FOUND_ROWS)
       {
-	JOIN_TAB *jt=join->join_tab;
-	if ((join->tables == 1) && !join->tmp_table && !join->sort_and_group
-	    && !join->send_group_parts && !join->having && !jt->select_cond &&
-	    !(jt->select && jt->select->quick) &&
-	    !(jt->table->file->table_flags() & HA_NOT_EXACT_COUNT))
-	{
-	  /* Join over all rows in table;  Return number of found rows */
-	  TABLE *table=jt->table;
+	    JOIN_TAB *jt=join->join_tab;
+	    if ((join->tables == 1) && !join->tmp_table && !join->sort_and_group
+	        && !join->send_group_parts && !join->having && !jt->select_cond &&
+	        !(jt->select && jt->select->quick) &&
+	        !(jt->table->file->table_flags() & HA_NOT_EXACT_COUNT))
+	    {
+	      /* Join over all rows in table;  Return number of found rows */
+	      TABLE *table=jt->table;
 
-	  join->select_options ^= OPTION_FOUND_ROWS;
-	  if (table->record_pointers ||
-	      (table->io_cache && my_b_inited(table->io_cache)))
-	  {
-	    /* Using filesort */
-	    join->send_records= table->found_records;
-	  }
-	  else
-	  {
-	    table->file->info(HA_STATUS_VARIABLE);
-	    join->send_records = table->file->records;
-	  }
-	}
-	else 
-	{
-	  join->do_send_rows= 0;
-	  join->unit->select_limit= HA_POS_ERROR;
-	  DBUG_RETURN(0);
-	}
+	      join->select_options ^= OPTION_FOUND_ROWS;
+	      if (table->record_pointers ||
+	          (table->io_cache && my_b_inited(table->io_cache)))
+	      {
+	        /* Using filesort */
+	        join->send_records= table->found_records;
+	      }
+	      else
+	      {
+	        table->file->info(HA_STATUS_VARIABLE);
+	        join->send_records = table->file->records;
+	      }
+	    }
+	    else 
+	    {
+	      join->do_send_rows= 0;
+	      join->unit->select_limit= HA_POS_ERROR;
+	      DBUG_RETURN(0);
+	    }
       }
       DBUG_RETURN(-3);				// Abort nicely
     }
