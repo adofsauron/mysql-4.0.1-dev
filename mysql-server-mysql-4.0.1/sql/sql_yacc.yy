@@ -638,9 +638,9 @@ verb_clause:
 change:
        CHANGE MASTER_SYM TO_SYM
         {
-	  LEX *lex = Lex;
-	  lex->sql_command = SQLCOM_CHANGE_MASTER;
-	  memset(&lex->mi, 0, sizeof(lex->mi));
+		  LEX *lex = Lex;
+		  lex->sql_command = SQLCOM_CHANGE_MASTER;
+		  memset(&lex->mi, 0, sizeof(lex->mi));
         } master_defs
 
 master_defs:
@@ -651,37 +651,37 @@ master_defs:
 master_def:
        MASTER_HOST_SYM EQ TEXT_STRING
        {
-	 Lex->mi.host = $3.str;
+			Lex->mi.host = $3.str;
        }
        |
        MASTER_USER_SYM EQ TEXT_STRING
        {
-	 Lex->mi.user = $3.str;
+			Lex->mi.user = $3.str;
        }
        |
        MASTER_PASSWORD_SYM EQ TEXT_STRING
        {
-	 Lex->mi.password = $3.str;
+			Lex->mi.password = $3.str;
        }
        |
        MASTER_LOG_FILE_SYM EQ TEXT_STRING
        {
-	 Lex->mi.log_file_name = $3.str;
+			Lex->mi.log_file_name = $3.str;
        }
        |
        MASTER_PORT_SYM EQ ULONG_NUM
        {
-	 Lex->mi.port = $3;
+			Lex->mi.port = $3;
        }
        |
        MASTER_LOG_POS_SYM EQ ulonglong_num
        {
-	 Lex->mi.pos = $3;
+			Lex->mi.pos = $3;
        }
        |
        MASTER_CONNECT_RETRY_SYM EQ ULONG_NUM
        {
-	 Lex->mi.connect_retry = $3;
+			Lex->mi.connect_retry = $3;
        }
 
 
