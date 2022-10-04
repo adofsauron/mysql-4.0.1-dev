@@ -758,7 +758,7 @@ JOIN::optimize()
       is sent to the client.
     */    
     if (having && 
-	(sort_and_group || (exec_tmp_table1->distinct && !group_list)))
+	    (sort_and_group || (exec_tmp_table1->distinct && !group_list)))
       having= tmp_having;
 
     /* if group or order on first table, sort first */
@@ -768,9 +768,9 @@ JOIN::optimize()
       thd->proc_info="Sorting for group";
       if (create_sort_index(thd, &join_tab[const_tables], group_list,
 			    HA_POS_ERROR, HA_POS_ERROR) ||
-	  make_sum_func_list(this, all_fields) ||
-	  alloc_group_fields(this, group_list))
-	DBUG_RETURN(1);
+		  make_sum_func_list(this, all_fields) ||
+		  alloc_group_fields(this, group_list))
+	    DBUG_RETURN(1);
       group_list=0;
     }
     else
