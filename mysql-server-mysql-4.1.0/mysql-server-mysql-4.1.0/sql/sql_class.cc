@@ -728,83 +728,83 @@ bool select_export::send_data(List<Item> &items)
     {						// NULL
       if (!fixed_row_size)
       {
-	if (escape_char != -1)			// Use \N syntax
-	{
-	  null_buff[0]=escape_char;
-	  null_buff[1]='N';
-	  if (my_b_write(&cache,(byte*) null_buff,2))
-	    goto err;
-	}
-	else if (my_b_write(&cache,(byte*) "NULL",4))
-	  goto err;
+	    if (escape_char != -1)			// Use \N syntax
+	    {
+	      null_buff[0]=escape_char;
+	      null_buff[1]='N';
+	      if (my_b_write(&cache,(byte*) null_buff,2))
+	        goto err;
+	    }
+	    else if (my_b_write(&cache,(byte*) "NULL",4))
+	      goto err;
       }
       else
       {
-	used_length=0;				// Fill with space
+	    used_length=0;				// Fill with space
       }
     }
     else
     {
       if (fixed_row_size)
-	used_length=min(res->length(),item->max_length);
+	    used_length=min(res->length(),item->max_length);
       else
-	used_length=res->length();
+	    used_length=res->length();
       if (result_type == STRING_RESULT && escape_char != -1)
       {
-	char *pos,*start,*end;
+		  char* pos, * start, * end;
 
-	for (start=pos=(char*) res->ptr(),end=pos+used_length ;
-	     pos != end ;
-	     pos++)
-	{
+		  for (start = pos = (char*)res->ptr(), end = pos + used_length;
+			  pos != end;
+			  pos++)
+		  {
 #ifdef USE_MB
-          CHARSET_INFO *res_charset=res->charset();
-	  if (use_mb(res_charset))
-	  {
-	    int l;
-	    if ((l=my_ismbchar(res_charset, pos, end)))
-	    {
-	      pos += l-1;
-	      continue;
-	    }
-	  }
+			  CHARSET_INFO* res_charset = res->charset();
+			  if (use_mb(res_charset))
+			  {
+				  int l;
+				  if ((l = my_ismbchar(res_charset, pos, end)))
+				  {
+					  pos += l - 1;
+					  continue;
+				  }
+			  }
 #endif
-	  if ((int) *pos == escape_char || (int) *pos == field_sep_char ||
-	      (int) *pos == line_sep_char || !*pos)
-	  {
-	    char tmp_buff[2];
-	    tmp_buff[0]= escape_char;
-	    tmp_buff[1]= *pos ? *pos : '0';
-	    if (my_b_write(&cache,(byte*) start,(uint) (pos-start)) ||
-		my_b_write(&cache,(byte*) tmp_buff,2))
-	      goto err;
-	    start=pos+1;
-	  }
-	}
-	if (my_b_write(&cache,(byte*) start,(uint) (pos-start)))
-	  goto err;
+			  if ((int)*pos == escape_char || (int)*pos == field_sep_char ||
+				  (int)*pos == line_sep_char || !*pos)
+			  {
+				  char tmp_buff[2];
+				  tmp_buff[0] = escape_char;
+				  tmp_buff[1] = *pos ? *pos : '0';
+				  if (my_b_write(&cache, (byte*)start, (uint)(pos - start)) ||
+					  my_b_write(&cache, (byte*)tmp_buff, 2))
+					  goto err;
+				  start = pos + 1;
+			  }
+		  }
+		  if (my_b_write(&cache, (byte*)start, (uint)(pos - start)))
+			  goto err;
       }
       else if (my_b_write(&cache,(byte*) res->ptr(),used_length))
-	goto err;
+	    goto err;
     }
     if (fixed_row_size)
     {						// Fill with space
       if (item->max_length > used_length)
       {
-	/* QQ:  Fix by adding a my_b_fill() function */
-	if (!space_inited)
-	{
-	  space_inited=1;
-	  bfill(space,sizeof(space),' ');
-	}
-	uint length=item->max_length-used_length;
-	for (; length > sizeof(space) ; length-=sizeof(space))
-	{
-	  if (my_b_write(&cache,(byte*) space,sizeof(space)))
-	    goto err;
-	}
-	if (my_b_write(&cache,(byte*) space,length))
-	  goto err;
+	    /* QQ:  Fix by adding a my_b_fill() function */
+	    if (!space_inited)
+	    {
+	      space_inited=1;
+	      bfill(space,sizeof(space),' ');
+	    }
+	    uint length=item->max_length-used_length;
+	    for (; length > sizeof(space) ; length-=sizeof(space))
+	    {
+	      if (my_b_write(&cache,(byte*) space,sizeof(space)))
+	        goto err;
+	    }
+	    if (my_b_write(&cache,(byte*) space,length))
+	      goto err;
       }
     }
     buff_ptr=buff;				// Place separators here
