@@ -6194,7 +6194,7 @@ setup_new_fields(THD *thd,TABLE_LIST *tables,List<Item> &fields,
     {
       thd->where="procedure list";
       if ((*new_field->item)->fix_fields(thd,tables))
-	DBUG_RETURN(1); /* purecov: inspected */
+	    DBUG_RETURN(1); /* purecov: inspected */
       thd->where=0;
       all_fields.push_front(*new_field->item);
       new_field->item=all_fields.head_ref();
