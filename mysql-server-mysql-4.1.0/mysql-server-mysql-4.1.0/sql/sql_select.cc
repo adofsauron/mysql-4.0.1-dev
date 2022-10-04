@@ -329,15 +329,15 @@ JOIN::prepare(Item ***rref_pointer_array,
       Item *item;
       while ((item= it++))
       {
-	if (item->with_sum_func)
-	  flag|=1;
-	else if (!(flag & 2) && !item->const_item())
-	  flag|=2;
+	    if (item->with_sum_func)
+	      flag|=1;
+	    else if (!(flag & 2) && !item->const_item())
+	      flag|=2;
       }
       if (flag == 3)
       {
-	my_error(ER_MIX_OF_GROUP_FUNC_AND_FIELDS,MYF(0));
-	DBUG_RETURN(-1);
+		  my_error(ER_MIX_OF_GROUP_FUNC_AND_FIELDS, MYF(0));
+		  DBUG_RETURN(-1);
       }
     }
     TABLE_LIST *table;
@@ -359,10 +359,10 @@ JOIN::prepare(Item ***rref_pointer_array,
     {
       if (!test_if_subpart(procedure->group,group_list))
       {						/* purecov: inspected */
-	my_message(0,"Can't handle procedures with differents groups yet",
-		   MYF(0));			/* purecov: inspected */
-	delete procedure;			/* purecov: inspected */
-	DBUG_RETURN(-1);			/* purecov: inspected */
+	    my_message(0,"Can't handle procedures with differents groups yet",
+		       MYF(0));			/* purecov: inspected */
+	    delete procedure;			/* purecov: inspected */
+	    DBUG_RETURN(-1);			/* purecov: inspected */
       }
     }
 #ifdef NOT_NEEDED
