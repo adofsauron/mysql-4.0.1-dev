@@ -522,8 +522,8 @@ JOIN::optimize()
   {
     TABLE **table, **end;
     for (table=this->table, end=table + const_tables ;
-	 table != end;
-	 table++)
+		table != end;
+		table++)
     {
       /* BDB tables require that we call index_end() before doing an unlock */
       if ((*table)->key_read)
