@@ -815,7 +815,7 @@ JOIN::optimize()
     }
     
     if (select_lex != &thd->lex.select_lex &&
-	select_lex->linkage != DERIVED_TABLE_TYPE)
+	    select_lex->linkage != DERIVED_TABLE_TYPE)
     {
       if (!(tmp_join= (JOIN*)thd->alloc(sizeof(JOIN))))
 	    DBUG_RETURN(-1);
