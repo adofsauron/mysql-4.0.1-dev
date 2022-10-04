@@ -874,8 +874,7 @@ static ha_rows get_quick_record_count(SQL_SELECT *select,TABLE *table,
   {
     select->head=table;
     table->reginfo.impossible_range=0;
-    if ((error=select->test_quick_select(keys,(table_map) 0,limit))
-	== 1)
+    if ((error=select->test_quick_select(keys,(table_map) 0,limit)) == 1)
       DBUG_RETURN(select->quick->records);
     if (error == -1)
     {

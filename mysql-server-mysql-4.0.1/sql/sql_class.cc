@@ -373,8 +373,8 @@ select_export::prepare(List<Item> &list)
     {
       if (item->max_length >= MAX_BLOB_WIDTH)
       {
-	blob_flag=1;
-	break;
+		  blob_flag = 1;
+		  break;
       }
     }
   }
