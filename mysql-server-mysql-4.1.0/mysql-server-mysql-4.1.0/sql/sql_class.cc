@@ -926,7 +926,7 @@ bool select_dump::send_data(List<Item> &items)
     if (!res)					// If NULL
     {
       if (my_b_write(&cache,(byte*) "",1))
-	goto err;
+	    goto err;
     }
     else if (my_b_write(&cache,(byte*) res->ptr(),res->length()))
     {
