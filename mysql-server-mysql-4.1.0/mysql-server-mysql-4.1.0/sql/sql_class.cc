@@ -722,7 +722,7 @@ bool select_export::send_data(List<Item> &items)
     {
       if (my_b_write(&cache,(byte*) exchange->enclosed->ptr(),
 		     exchange->enclosed->length()))
-	goto err;
+	    goto err;
     }
     if (!res)
     {						// NULL
