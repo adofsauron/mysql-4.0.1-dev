@@ -2104,25 +2104,25 @@ insert_fields(THD *thd,TABLE_LIST *tables, const char *db_name,
     {
       /* Ensure that we have access right to all columns */
       if (grant_option && !thd->master_access &&
-	  check_grant_all_columns(thd,SELECT_ACL,table) )
-	DBUG_RETURN(-1);
+	        check_grant_all_columns(thd,SELECT_ACL,table) )
+	    DBUG_RETURN(-1);
       Field **ptr=table->field,*field;
       thd->used_tables|=table->map;
       while ((field = *ptr++))
       {
-	Item_field *item= new Item_field(field);
-	if (!found++)
-	  (void) it->replace(item);		// Replace '*'
-	else
-	  it->after(item);
-	/*
-	  Mark if field used before in this select.
-	  Used by 'insert' to verify if a field name is used twice
-	*/
-	if (field->query_id == thd->query_id)
-	  thd->dupp_field=field;
-	field->query_id=thd->query_id;
-	table->used_keys&= field->part_of_key;
+	    Item_field *item= new Item_field(field);
+	    if (!found++)
+	      (void) it->replace(item);		// Replace '*'
+	    else
+	      it->after(item);
+	    /*
+	      Mark if field used before in this select.
+	      Used by 'insert' to verify if a field name is used twice
+	    */
+	    if (field->query_id == thd->query_id)
+	      thd->dupp_field=field;
+	    field->query_id=thd->query_id;
+	    table->used_keys&= field->part_of_key;
       }
       /* All fields are used */
       table->used_fields=table->fields;
