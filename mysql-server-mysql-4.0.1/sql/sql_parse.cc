@@ -2955,8 +2955,8 @@ TABLE_LIST *add_table_to_list(Table_ident *table, LEX_STRING *alias,
   if (flags != TL_IGNORE)
   {
     for (TABLE_LIST *tables=(TABLE_LIST*) thd->lex.select->table_list.first ;
-	 tables ;
-	 tables=tables->next)
+		tables;
+		tables = tables->next)
     {
       if (!strcmp(alias_str,tables->name) && !strcmp(ptr->db, tables->db))
       {
