@@ -2428,9 +2428,9 @@ single_multi:
           }
           FROM 
           {
-	    LEX *lex=Lex;
-	    lex->auxilliary_table_list=lex->select_lex.table_list;
-	    lex->select->table_list.elements=0; 
+			LEX *lex=Lex;
+			lex->auxilliary_table_list=lex->select_lex.table_list;
+			lex->select->table_list.elements=0; 
             lex->select->table_list.first=0;
             lex->select->table_list.next= (byte**) &(lex->select->table_list.first);
 	  } join_table_list where_clause
@@ -2516,31 +2516,31 @@ show_param:
 	      YYABORT;
 	  }
         | NEW_SYM MASTER_SYM FOR_SYM SLAVE WITH MASTER_LOG_FILE_SYM EQ 
-	  TEXT_STRING AND MASTER_LOG_POS_SYM EQ ulonglong_num AND
-	MASTER_LOG_SEQ_SYM EQ ULONG_NUM AND MASTER_SERVER_ID_SYM EQ
-	ULONG_NUM
+			  TEXT_STRING AND MASTER_LOG_POS_SYM EQ ulonglong_num AND
+			MASTER_LOG_SEQ_SYM EQ ULONG_NUM AND MASTER_SERVER_ID_SYM EQ
+			ULONG_NUM
         {
-	  LEX *lex=Lex;
-	  lex->sql_command = SQLCOM_SHOW_NEW_MASTER;
-	  lex->mi.log_file_name = $8.str;
-	  lex->mi.pos = $12;
-	  lex->mi.last_log_seq = $16;
-	  lex->mi.server_id = $20;
+		  LEX *lex=Lex;
+		  lex->sql_command = SQLCOM_SHOW_NEW_MASTER;
+		  lex->mi.log_file_name = $8.str;
+		  lex->mi.pos = $12;
+		  lex->mi.last_log_seq = $16;
+		  lex->mi.server_id = $20;
         }
         | MASTER_SYM LOGS_SYM
           {
-	    Lex->sql_command = SQLCOM_SHOW_BINLOGS;
+			Lex->sql_command = SQLCOM_SHOW_BINLOGS;
           }
         | SLAVE HOSTS_SYM
           {
-	    Lex->sql_command = SQLCOM_SHOW_SLAVE_HOSTS;
+			Lex->sql_command = SQLCOM_SHOW_SLAVE_HOSTS;
           }
         | BINLOG_SYM EVENTS_SYM binlog_in binlog_from
           {
-	    LEX *lex=Lex;
-	    lex->sql_command = SQLCOM_SHOW_BINLOG_EVENTS;
-	    lex->select->select_limit= lex->thd->default_select_limit;
-	    lex->select->offset_limit= 0L;
+			LEX *lex=Lex;
+			lex->sql_command = SQLCOM_SHOW_BINLOG_EVENTS;
+			lex->select->select_limit= lex->thd->default_select_limit;
+			lex->select->offset_limit= 0L;
           } limit_clause
 	| keys_or_index FROM table_ident opt_db
 	  {
@@ -2567,17 +2567,17 @@ show_param:
 	  }
         | CREATE TABLE_SYM table_ident
           {
-	    Lex->sql_command = SQLCOM_SHOW_CREATE;
-	    if(!add_table_to_list($3, NULL,0))
-	      YYABORT;
-	  }
+			Lex->sql_command = SQLCOM_SHOW_CREATE;
+			if(!add_table_to_list($3, NULL,0))
+			  YYABORT;
+		  }
         | MASTER_SYM STATUS_SYM
           {
-	    Lex->sql_command = SQLCOM_SHOW_MASTER_STAT;
+			Lex->sql_command = SQLCOM_SHOW_MASTER_STAT;
           }
         | SLAVE STATUS_SYM
           {
-	    Lex->sql_command = SQLCOM_SHOW_SLAVE_STAT;
+			Lex->sql_command = SQLCOM_SHOW_SLAVE_STAT;
           }
 
 opt_db:
@@ -2684,7 +2684,7 @@ purge:
 	}
         MASTER_SYM LOGS_SYM TO_SYM TEXT_STRING
          {
-	   Lex->to_log = $6.str;
+			Lex->to_log = $6.str;
          } 
 
 /* kill threads */
@@ -2698,7 +2698,7 @@ kill:
 	    send_error(&lex->thd->net, ER_SET_CONSTANTS_ONLY);
 	    YYABORT;
 	  }
-          lex->sql_command=SQLCOM_KILL;
+      lex->sql_command=SQLCOM_KILL;
 	  lex->thread_id= (ulong) $2->val_int();
 	}
 
@@ -2730,15 +2730,15 @@ load:	LOAD DATA_SYM load_data_lock opt_local INFILE TEXT_STRING
         |
 	LOAD TABLE_SYM table_ident FROM MASTER_SYM
         {
-	  Lex->sql_command = SQLCOM_LOAD_MASTER_TABLE;
-	  if (!add_table_to_list($3,NULL,1))
-	    YYABORT;
+		  Lex->sql_command = SQLCOM_LOAD_MASTER_TABLE;
+		  if (!add_table_to_list($3,NULL,1))
+			YYABORT;
 
         }
         |
 	LOAD DATA_SYM FROM MASTER_SYM
         {
-	  Lex->sql_command = SQLCOM_LOAD_MASTER_DATA;
+			Lex->sql_command = SQLCOM_LOAD_MASTER_DATA;
         }
 
 opt_local:
