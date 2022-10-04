@@ -933,18 +933,18 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
     {
       if (!table->file->records)
       {						// Empty table
-	s->key_dependent=s->dependent=0;
-	s->type=JT_SYSTEM;
-	const_table_map|=table->map;
-	set_position(join,const_count++,s,(KEYUSE*) 0);
-	continue;
+		  s->key_dependent = s->dependent = 0;
+		  s->type = JT_SYSTEM;
+		  const_table_map |= table->map;
+		  set_position(join, const_count++, s, (KEYUSE*)0);
+		  continue;
       }
       s->key_dependent=s->dependent=
-	s->on_expr->used_tables() & ~(table->map);
+	    s->on_expr->used_tables() & ~(table->map);
       if (table->outer_join & JOIN_TYPE_LEFT)
-	s->dependent|=stat_vector[i-1]->dependent | table_vector[i-1]->map;
+	    s->dependent|=stat_vector[i-1]->dependent | table_vector[i-1]->map;
       if (tables->outer_join & JOIN_TYPE_RIGHT)
-	s->dependent|=tables->next->table->map;
+	    s->dependent|=tables->next->table->map;
       outer_join|=table->map;
       continue;
     }
@@ -954,7 +954,7 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
       s->dependent=(table_map) 0;
     s->key_dependent=(table_map) 0;
     if ((table->system || table->file->records <= 1) && ! s->dependent &&
-	!(table->file->option_flag() & HA_NOT_EXACT_COUNT))
+	    !(table->file->option_flag() & HA_NOT_EXACT_COUNT))
     {
       s->type=JT_SYSTEM;
       const_table_map|=table->map;
@@ -977,24 +977,24 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
     {
       if (stat_vector[i]->dependent & ~used_tables)
       {
-	JOIN_TAB *save= stat_vector[i];
-	uint j;
-	for (j=i+1;
-	     j < join->tables && stat_vector[j]->dependent & ~used_tables;
-	     j++)
-	{
-	  JOIN_TAB *tmp=stat_vector[j];		// Move element up
-	  stat_vector[j]=save;
-	  save=tmp;
-	}
-	if (j == join->tables)
-	{
-	  join->tables=0;			// Don't use join->table
-	  my_error(ER_WRONG_OUTER_JOIN,MYF(0));
-	  DBUG_RETURN(1);
-	}
-	stat_vector[i]=stat_vector[j];
-	stat_vector[j]=save;
+	    JOIN_TAB *save= stat_vector[i];
+	    uint j;
+	    for (j=i+1;
+	         j < join->tables && stat_vector[j]->dependent & ~used_tables;
+	         j++)
+	    {
+	      JOIN_TAB *tmp=stat_vector[j];		// Move element up
+	      stat_vector[j]=save;
+	      save=tmp;
+	    }
+	    if (j == join->tables)
+	    {
+	      join->tables=0;			// Don't use join->table
+	      my_error(ER_WRONG_OUTER_JOIN,MYF(0));
+	      DBUG_RETURN(1);
+	    }
+	    stat_vector[i]=stat_vector[j];
+	    stat_vector[j]=save;
       }
       used_tables|= stat_vector[i]->table->map;
     }
