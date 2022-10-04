@@ -4869,14 +4869,14 @@ do_select(JOIN *join,List<Item> *fields,TABLE *table,Procedure *procedure)
     {
       if (table->keys)
       {
-	DBUG_PRINT("info",("Using end_update"));
-	end_select=end_update;
-	table->file->index_init(0);
+		  DBUG_PRINT("info", ("Using end_update"));
+		  end_select = end_update;
+		  table->file->index_init(0);
       }
       else
       {
-	DBUG_PRINT("info",("Using end_unique_update"));
-	end_select=end_unique_update;
+		  DBUG_PRINT("info", ("Using end_unique_update"));
+		  end_select = end_unique_update;
       }
     }
     else if (join->sort_and_group)
@@ -4905,11 +4905,11 @@ do_select(JOIN *join,List<Item> *fields,TABLE *table,Procedure *procedure)
   if (join->tables == join->const_tables)
   {
     if (!join->select_lex->dependent ||
-	((!join->conds || join->conds->val_int()) &&
-	 (!join->having || join->having->val_int())))
+		((!join->conds || join->conds->val_int()) &&
+			(!join->having || join->having->val_int())))
     {
       if (!(error=(*end_select)(join,join_tab,0)) || error == -3)
-	error=(*end_select)(join,join_tab,1);
+	    error=(*end_select)(join,join_tab,1);
     }
   }
   else
