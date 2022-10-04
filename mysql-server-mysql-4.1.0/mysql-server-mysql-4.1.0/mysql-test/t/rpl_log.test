@@ -1,0 +1,75 @@
+source include/master-slave.inc;
+
+# Clean up old slave's binlogs.
+# The slave is started with --log-slave-updates
+# and this test does SHOW BINLOG EVENTS on the slave's
+# binlog. But previous tests can influence the current test's
+# binlog (e.g. a temporary table in the previous test has not
+# been explicitly deleted, and at the beginning of the current
+# test the slave immediately writes DROP TEMPORARY TABLE this_old_table).
+# We wait for the slave to have written all he wants to the binlog
+# (otherwise RESET MASTER may come too early).
+save_master_pos;
+connection slave;
+sync_with_master;
+stop slave;
+reset master;
+reset slave;
+let $VERSION=`select version()`;
+
+connection master;
+reset master;
+create table t1(n int not null auto_increment primary key);
+insert into t1 values (NULL);
+drop table t1;
+create table t1 (word char(20) not null);
+load data infile '../../std_data/words.dat' into table t1;
+drop table t1;
+--replace_result $VERSION VERSION
+show binlog events;
+show binlog events from 79 limit 1;
+show binlog events from 79 limit 2;
+show binlog events from 79 limit 2,1;
+flush logs;
+
+# Sync slave and force it to start on another binary log
+
+save_master_pos;
+connection slave;
+start slave;
+sync_with_master;
+flush logs;
+stop slave;
+connection master;
+
+# Create some entries for second log
+
+create table t1 (n int);
+insert into t1 values (1);
+drop table t1;
+--replace_result $VERSION VERSION
+show binlog events;
+show binlog events in 'master-bin.000002';
+show binary logs;
+save_master_pos;
+connection slave;
+start slave;
+sync_with_master;
+show binary logs;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT $VERSION VERSION
+show binlog events in 'slave-bin.000001' from 4;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT $VERSION VERSION
+show binlog events in 'slave-bin.000002' from 4;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+show slave status;
+
+# Need to recode the following
+
+#show new master for slave with master_log_file='master-bin.000001' and master_log_pos=4 and  master_server_id=1;
+#show new master for slave with master_log_file='master-bin.000001' and master_log_pos=79 and master_server_id=1;
+#show new master for slave with master_log_file='master-bin.000001' and master_log_pos=311 and master_server_id=1;
+#show new master for slave with master_log_file='master-bin.000002' and master_log_pos=4 and master_server_id=1;
+#show new master for slave with master_log_file='master-bin.000002' and master_log_pos=122 and master_server_id=1;
+
+--error 1220
+show binlog events in 'slave-bin.000005' from 4;

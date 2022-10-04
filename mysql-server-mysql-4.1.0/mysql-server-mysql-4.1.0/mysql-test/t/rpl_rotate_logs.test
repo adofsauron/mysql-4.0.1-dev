@@ -1,0 +1,141 @@
+#
+# Test is run with max_binlog_size=2048 to force automatic rotation of the
+# binary log
+# Tests done:
+# - Check that slaves reports correct failures if master.info has strange
+#   modes/information
+# - Automatic binary log rotation
+# - Ensure that temporary tables works over flush logs and binary log
+#   changes
+# - Test creating a duplicate key error and recover from it
+
+connect (master,localhost,root,,test,$MASTER_MYPORT,master.sock);
+--disable_warnings
+drop table if exists t1, t2, t3, t4;
+--enable_warnings
+connect (slave,localhost,root,,test,$SLAVE_MYPORT,slave.sock);
+system cat /dev/null > var/slave-data/master.info;
+system chmod 000 var/slave-data/master.info;
+connection slave;
+--disable_warnings
+drop table if exists t1, t2, t3, t4;
+--enable_warnings
+--error 1201
+start slave;
+system chmod 600 var/slave-data/master.info;
+--error 1201
+start slave;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+# Will get error 13 on Unix systems becasue file is not readable
+!eval change master to master_host='127.0.0.1',master_port=$MASTER_MYPORT, master_user='root';
+reset slave;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+eval change master to master_host='127.0.0.1',master_port=$MASTER_MYPORT, master_user='root'; 
+connection master;
+reset master;
+connection slave;
+start slave;
+connection master;
+
+#
+# Test FLUSH LOGS
+#
+create temporary table temp_table (a char(80) not null);
+insert into temp_table values ("testing temporary tables");
+create table t1 (s text);
+insert into t1 values('Could not break slave'),('Tried hard');
+sync_slave_with_master;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+show slave status;
+select * from t1;
+connection master;
+flush logs;
+create table t2(m int not null auto_increment primary key);
+insert into t2 values (34),(67),(123);
+flush logs;
+show binary logs;
+create table t3 select * from temp_table;
+
+sync_slave_with_master;
+
+select * from t3;
+connection master;
+drop table temp_table, t3;
+
+#
+# Now lets make some duplicate key mess and see if we can recover from it
+#
+
+# First insert a value on the slave
+connection slave;
+insert into t2 values(1234);
+
+#same value on the master
+connection master;
+save_master_pos;
+set insert_id=1234;
+insert into t2 values(NULL);
+connection slave;
+sync_with_master;
+
+wait_for_slave_to_stop;
+
+#restart slave skipping one event
+set global sql_slave_skip_counter=1;
+start slave;
+
+connection master;
+
+#let slave catch up
+sync_slave_with_master;
+connection master;
+purge master logs to 'master-bin.000002';
+show binary logs;
+--sleep 1;
+purge logs before now();
+show binary logs;
+insert into t2 values (65);
+sync_slave_with_master;
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+show slave status;
+select * from t2;
+
+#
+# Test forcing the replication log to rotate
+# 
+
+connection master;
+create temporary table temp_table (a char(80) not null);
+insert into temp_table values ("testing temporary tables part 2");
+let $1=100;
+
+create table t3 (n int);
+disable_query_log;
+while ($1)
+{
+#eval means expand $ expressions
+ eval insert into t3 values($1 + 4);
+ dec $1;
+}
+enable_query_log;
+create table t4 select * from temp_table;
+show binary logs;
+show master status;
+save_master_pos;
+connection slave;
+#stop slave;
+#start slave;
+sync_with_master;
+select * from t4;
+
+--replace_result 3306 MASTER_PORT 9306 MASTER_PORT 3334 MASTER_PORT 3336 MASTER_PORT
+show slave status;
+# because of concurrent insert, the table may not be up to date
+# if we do not lock
+lock tables t3 read;
+select count(*) from t3 where n >= 4;
+unlock tables;
+#clean up
+connection master;
+drop table if exists t1,t2,t3,t4;
+sync_slave_with_master;

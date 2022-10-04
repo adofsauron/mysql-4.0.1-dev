@@ -1,0 +1,150 @@
+drop table if exists t1,t2,t3;
+select * from (select 2 from DUAL) b;
+2
+2
+SELECT 1 as a FROM (SELECT 1 UNION SELECT a) b;
+Unknown column 'a' in 'field list'
+SELECT 1 as a FROM (SELECT a UNION SELECT 1) b;
+Unknown column 'a' in 'field list'
+CREATE TABLE t1 (a int not null, b char (10) not null);
+insert into t1 values(1,'a'),(2,'b'),(3,'c'),(3,'c');
+CREATE TABLE t2 (a int not null, b char (10) not null);
+insert into t2 values (3,'c'),(4,'d'),(5,'f'),(6,'e');
+select t1.a,t3.y from t1,(select a as y from t2  where b='c') as t3  where t1.a = t3.y;
+a	y
+3	3
+3	3
+select t1.a,t3.a from t1,(select * from t2  where b='c') as t3  where t1.a = t3.a;
+a	a
+3	3
+3	3
+CREATE TABLE t3 (a int not null, b char (10) not null);
+insert into t3 values (3,'f'),(4,'y'),(5,'z'),(6,'c');
+select t1.a,t4.y from t1,(select t2.a as y from t2,(select t3.b from t3 where t3.a>3) as t5  where t2.b=t5.b) as t4  where t1.a = t4.y;
+a	y
+3	3
+3	3
+SELECT a FROM (SELECT 1 FROM (SELECT 1) a HAVING a=1) b;
+Unknown column 'a' in 'having clause'
+SELECT a,b as a FROM (SELECT '1' as a,'2' as b) b  HAVING a=1;
+Column: 'a' in having clause is ambiguous
+SELECT a,2 as a FROM (SELECT '1' as a) b HAVING a=2;
+a	a
+1	2
+SELECT a,2 as a FROM (SELECT '1' as a) b HAVING a=1;
+a	a
+SELECT 1 FROM (SELECT 1) a WHERE a=2;
+Unknown column 'a' in 'where clause'
+SELECT (SELECT 1) as a FROM (SELECT 1 FROM t1  HAVING a=1) as a;
+Unknown column 'a' in 'having clause'
+select * from t1 as x1, (select * from t1) as x2;
+a	b	a	b
+1	a	1	a
+2	b	1	a
+3	c	1	a
+3	c	1	a
+1	a	2	b
+2	b	2	b
+3	c	2	b
+3	c	2	b
+1	a	3	c
+2	b	3	c
+3	c	3	c
+3	c	3	c
+1	a	3	c
+2	b	3	c
+3	c	3	c
+3	c	3	c
+explain select * from t1 as x1, (select * from t1) as x2;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	x1	ALL	NULL	NULL	NULL	NULL	4	
+1	PRIMARY	<derived2>	ALL	NULL	NULL	NULL	NULL	4	
+2	DERIVED	x1	ALL	NULL	NULL	NULL	NULL	4	
+drop table if exists  t2,t3;
+select * from (select 1) as a;
+1
+1
+select a from (select 1 as a) as b;
+a
+1
+select 1 from (select 1) as a;
+1
+1
+select * from (select * from t1 union select * from t1) a;
+a	b
+1	a
+2	b
+3	c
+select * from (select * from t1 union all select * from t1) a;
+a	b
+1	a
+2	b
+3	c
+3	c
+1	a
+2	b
+3	c
+3	c
+explain select * from (select * from t1 union select * from t1) a;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	<derived2>	ALL	NULL	NULL	NULL	NULL	3	
+2	DERIVED	t1	ALL	NULL	NULL	NULL	NULL	4	
+3	UNION	t1	ALL	NULL	NULL	NULL	NULL	4	
+explain select * from (select * from t1 union all select * from t1) a;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	<derived2>	ALL	NULL	NULL	NULL	NULL	8	
+2	DERIVED	t1	ALL	NULL	NULL	NULL	NULL	4	
+3	UNION	t1	ALL	NULL	NULL	NULL	NULL	4	
+CREATE TABLE t2 (a int not null);
+insert into t2 values(1);
+select * from (select * from t1 where t1.a=(select a from t2 where t2.a=t1.a)) a;
+a	b
+1	a
+select * from (select * from t1 where t1.a=(select t2.a from t2 where t2.a=t1.a) union select t1.a, t1.b from t1) a;
+a	b
+1	a
+2	b
+3	c
+drop table t1, t2;
+create table t1(a int not null, t char(8), index(a));
+SELECT * FROM (SELECT * FROM t1) as b ORDER BY a  ASC LIMIT 0,20;
+a	t
+1	1
+2	2
+3	3
+4	4
+5	5
+6	6
+7	7
+8	8
+9	9
+10	10
+11	11
+12	12
+13	13
+14	14
+15	15
+16	16
+17	17
+18	18
+19	19
+20	20
+explain select count(*) from t1 as tt1, (select * from t1) as tt2;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	NULL	NULL	NULL	NULL	NULL	NULL	NULL	Select tables optimized away
+2	DERIVED	tt1	index	NULL	a	4	NULL	10000	Using index
+drop table t1;
+SELECT * FROM (SELECT (SELECT * FROM (SELECT 1 as a) as a )) as b;
+(SELECT * FROM (SELECT 1 as a) as a )
+1
+select * from (select 1 as a) b  left join (select 2 as a) c using(a);
+a	a
+1	NULL
+SELECT * FROM (SELECT 1 UNION SELECT a) b;
+Unknown column 'a' in 'field list'
+SELECT 1 as a FROM (SELECT a UNION SELECT 1) b;
+Unknown column 'a' in 'field list'
+SELECT 1 as a FROM (SELECT 1 UNION SELECT a) b;
+Unknown column 'a' in 'field list'
+select 1 from  (select 2) a order by 0;
+Unknown column '0' in 'order clause'

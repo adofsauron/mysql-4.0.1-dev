@@ -1,0 +1,66 @@
+# Initialize
+--disable_warnings
+drop table if exists t1,t2,t3;
+--enable_warnings
+
+select * from (select 2 from DUAL) b;
+-- error 1054
+SELECT 1 as a FROM (SELECT 1 UNION SELECT a) b;
+-- error 1054
+SELECT 1 as a FROM (SELECT a UNION SELECT 1) b;
+CREATE TABLE t1 (a int not null, b char (10) not null);
+insert into t1 values(1,'a'),(2,'b'),(3,'c'),(3,'c');
+CREATE TABLE t2 (a int not null, b char (10) not null);
+insert into t2 values (3,'c'),(4,'d'),(5,'f'),(6,'e');
+select t1.a,t3.y from t1,(select a as y from t2  where b='c') as t3  where t1.a = t3.y;
+select t1.a,t3.a from t1,(select * from t2  where b='c') as t3  where t1.a = t3.a;
+CREATE TABLE t3 (a int not null, b char (10) not null);
+insert into t3 values (3,'f'),(4,'y'),(5,'z'),(6,'c');
+select t1.a,t4.y from t1,(select t2.a as y from t2,(select t3.b from t3 where t3.a>3) as t5  where t2.b=t5.b) as t4  where t1.a = t4.y;
+--error 1054
+SELECT a FROM (SELECT 1 FROM (SELECT 1) a HAVING a=1) b;
+--error 1052
+SELECT a,b as a FROM (SELECT '1' as a,'2' as b) b  HAVING a=1;
+SELECT a,2 as a FROM (SELECT '1' as a) b HAVING a=2;
+SELECT a,2 as a FROM (SELECT '1' as a) b HAVING a=1;
+--error 1054
+SELECT 1 FROM (SELECT 1) a WHERE a=2;
+--error 1054
+SELECT (SELECT 1) as a FROM (SELECT 1 FROM t1  HAVING a=1) as a;
+select * from t1 as x1, (select * from t1) as x2;
+explain select * from t1 as x1, (select * from t1) as x2;
+drop table if exists  t2,t3;
+select * from (select 1) as a;
+select a from (select 1 as a) as b;
+select 1 from (select 1) as a;
+select * from (select * from t1 union select * from t1) a;
+select * from (select * from t1 union all select * from t1) a;
+explain select * from (select * from t1 union select * from t1) a;
+explain select * from (select * from t1 union all select * from t1) a;
+CREATE TABLE t2 (a int not null);
+insert into t2 values(1);
+select * from (select * from t1 where t1.a=(select a from t2 where t2.a=t1.a)) a;
+select * from (select * from t1 where t1.a=(select t2.a from t2 where t2.a=t1.a) union select t1.a, t1.b from t1) a;
+drop table t1, t2;
+create table t1(a int not null, t char(8), index(a));
+disable_query_log;
+let $1 = 10000;
+while ($1)
+ {
+  eval insert into t1 values ($1,'$1'); 
+  dec $1;
+ }
+enable_query_log;
+SELECT * FROM (SELECT * FROM t1) as b ORDER BY a  ASC LIMIT 0,20;
+explain select count(*) from t1 as tt1, (select * from t1) as tt2;
+drop table t1;
+SELECT * FROM (SELECT (SELECT * FROM (SELECT 1 as a) as a )) as b;
+select * from (select 1 as a) b  left join (select 2 as a) c using(a);
+--error 1054
+SELECT * FROM (SELECT 1 UNION SELECT a) b;
+--error 1054
+SELECT 1 as a FROM (SELECT a UNION SELECT 1) b;
+--error 1054
+SELECT 1 as a FROM (SELECT 1 UNION SELECT a) b;
+--error 1054
+select 1 from  (select 2) a order by 0;

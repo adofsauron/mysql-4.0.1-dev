@@ -1,0 +1,275 @@
+drop table if exists t1,t2,t3;
+CREATE TABLE t1 (a int not null, b char (10) not null);
+insert into t1 values(1,'a'),(2,'b'),(3,'c'),(3,'c');
+CREATE TABLE t2 (a int not null, b char (10) not null);
+insert into t2 values (3,'c'),(4,'d'),(5,'f'),(6,'e');
+select a,b from t1 union select a,b from t2;
+a	b
+1	a
+2	b
+3	c
+4	d
+5	f
+6	e
+select a,b from t1 union all select a,b from t2;
+a	b
+1	a
+2	b
+3	c
+3	c
+3	c
+4	d
+5	f
+6	e
+select a,b from t1 union all select a,b from t2 order by b;
+a	b
+1	a
+2	b
+3	c
+3	c
+3	c
+4	d
+6	e
+5	f
+select a,b from t1 union all select a,b from t2 union select 7,'g';
+a	b
+1	a
+2	b
+3	c
+3	c
+3	c
+4	d
+5	f
+6	e
+7	g
+select 0,'#' union select a,b from t1 union all select a,b from t2 union select 7,'gg';
+0	#
+0	#
+1	a
+2	b
+3	c
+3	c
+3	c
+4	d
+5	f
+6	e
+7	g
+select a,b from t1 union select a,b from t1;
+a	b
+1	a
+2	b
+3	c
+select 't1',b,count(*) from t1 group by b UNION select 't2',b,count(*) from t2 group by b;
+t1	b	count(*)
+t1	a	1
+t1	b	1
+t1	c	2
+t2	c	1
+t2	d	1
+t2	e	1
+t2	f	1
+(select a,b from t1 limit 2)  union all (select a,b from t2 order by a) limit 4;
+a	b
+1	a
+2	b
+3	c
+4	d
+(select a,b from t1 limit 2)  union all (select a,b from t2 order by a limit 1);
+a	b
+1	a
+2	b
+3	c
+(select a,b from t1 limit 2)  union all (select a,b from t2 order by a limit 1) order by b desc;
+a	b
+3	c
+2	b
+1	a
+(select a,b from t1 limit 2)  union all (select a,b from t2 order by a limit 1) order by t1.b;
+Table 't1' from one of SELECT's can not be used  in global ORDER clause
+explain (select a,b from t1 limit 2)  union all (select a,b from t2 order by a limit 1) order by b desc;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	t1	ALL	NULL	NULL	NULL	NULL	4	
+2	UNION	t2	ALL	NULL	NULL	NULL	NULL	4	Using filesort
+select found_rows();
+found_rows()
+0
+explain select a,b from t1 union all select a,b from t2;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	t1	ALL	NULL	NULL	NULL	NULL	4	
+2	UNION	t2	ALL	NULL	NULL	NULL	NULL	4	
+explain select xx from t1 union select 1;
+Unknown column 'xx' in 'field list'
+explain select a,b from t1 union select 1;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	t1	ALL	NULL	NULL	NULL	NULL	4	
+2	UNION	NULL	NULL	NULL	NULL	NULL	NULL	NULL	No tables used
+explain select 1 union select a,b from t1 union select 1;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	NULL	NULL	NULL	NULL	NULL	NULL	NULL	No tables used
+2	UNION	t1	ALL	NULL	NULL	NULL	NULL	4	
+3	UNION	NULL	NULL	NULL	NULL	NULL	NULL	NULL	No tables used
+explain select a,b from t1 union select 1 limit 0;
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	NULL	NULL	NULL	NULL	NULL	NULL	NULL	Impossible WHERE
+2	UNION	NULL	NULL	NULL	NULL	NULL	NULL	NULL	Impossible WHERE
+select a,b from t1 into outfile 'skr' union select a,b from t2;
+Wrong usage of UNION and INTO
+select a,b from t1 order by a union select a,b from t2;
+Wrong usage of UNION and ORDER BY
+insert into t3 select a from t1 order by a union select a from t2;
+Wrong usage of UNION and ORDER BY
+create table t3 select a,b from t1 union select a from t2;
+The used SELECT statements have a different number of columns
+select a,b from t1 union select a from t2;
+The used SELECT statements have a different number of columns
+select * from t1 union select a from t2;
+The used SELECT statements have a different number of columns
+select a from t1 union select * from t2;
+The used SELECT statements have a different number of columns
+select * from t1 union select SQL_BUFFER_RESULT * from t2;
+Wrong usage/placement of 'SQL_BUFFER_RESULT'
+create table t3 select a,b from t1 union all select a,b from t2;
+insert into t3 select a,b from t1 union all select a,b from t2;
+replace into t3 select a,b as c from t1 union all select a,b from t2;
+drop table t1,t2,t3;
+CREATE TABLE t1 (
+`pseudo` char(35) NOT NULL default '',
+`pseudo1` char(35) NOT NULL default '',
+`same` tinyint(1) unsigned NOT NULL default '1',
+PRIMARY KEY  (`pseudo1`),
+KEY `pseudo` (`pseudo`)
+) TYPE=MyISAM;
+INSERT INTO t1 (pseudo,pseudo1,same) VALUES ('joce', 'testtt', 1),('joce', 'tsestset', 1),('dekad', 'joce', 1);
+SELECT pseudo FROM t1 WHERE pseudo1='joce' UNION SELECT pseudo FROM t1 WHERE pseudo='joce';
+pseudo
+dekad
+joce
+SELECT pseudo1 FROM t1 WHERE pseudo1='joce' UNION SELECT pseudo1 FROM t1 WHERE pseudo='joce';
+pseudo1
+joce
+testtt
+tsestset
+SELECT * FROM t1 WHERE pseudo1='joce' UNION SELECT * FROM t1 WHERE pseudo='joce' order by pseudo desc,pseudo1 desc;
+pseudo	pseudo1	same
+joce	tsestset	1
+joce	testtt	1
+dekad	joce	1
+SELECT pseudo1 FROM t1 WHERE pseudo='joce' UNION SELECT pseudo FROM t1 WHERE pseudo1='joce';
+pseudo1
+testtt
+tsestset
+dekad
+SELECT pseudo1 FROM t1 WHERE pseudo='joce' UNION ALL SELECT pseudo FROM t1 WHERE pseudo1='joce';
+pseudo1
+testtt
+tsestset
+dekad
+SELECT pseudo1 FROM t1 WHERE pseudo='joce' UNION SELECT 1;
+pseudo1
+testtt
+tsestset
+1
+drop table t1;
+create table t1 (a int);
+create table t2 (a int);
+insert into t1 values (1),(2),(3),(4),(5);
+insert into t2 values (11),(12),(13),(14),(15);
+(select * from t1 limit 2) union (select * from t2 limit 3) limit 4;
+a
+1
+2
+11
+12
+(select * from t1 limit 2) union (select * from t2 limit 3);
+a
+1
+2
+11
+12
+13
+(select * from t1 limit 2) union (select * from t2 limit 20,3);
+a
+1
+2
+set SQL_SELECT_LIMIT=2;
+(select * from t1 limit 1) union (select * from t2 limit 3);
+a
+1
+11
+set SQL_SELECT_LIMIT=DEFAULT;
+drop table t1,t2;
+select * union select 1;
+No tables used
+select 1 as a,(select a union select a);
+a	(select a union select a)
+1	1
+drop table if exists t1,t2;
+CREATE TABLE t1 (  id int(3) unsigned default '0') TYPE=MyISAM;
+INSERT INTO t1 (id) VALUES("1");
+CREATE TABLE t2 ( id int(3) unsigned default '0',  id_master int(5) default '0',  text1 varchar(5) default NULL,  text2 varchar(5) default NULL) TYPE=MyISAM;
+INSERT INTO t2 (id, id_master, text1, text2) VALUES("1", "1",
+"foo1", "bar1");
+INSERT INTO t2 (id, id_master, text1, text2) VALUES("2", "1",
+"foo2", "bar2");
+INSERT INTO t2 (id, id_master, text1, text2) VALUES("3", "1", NULL,
+"bar3");
+INSERT INTO t2 (id, id_master, text1, text2) VALUES("4", "1",
+"foo4", "bar4");
+SELECT 1 AS id_master, 1 AS id, NULL AS text1, 'ABCDE' AS text2 UNION SELECT id_master, t2.id, text1, text2 FROM t1 LEFT JOIN t2 ON t1.id = t2.id_master;
+id_master	id	text1	text2
+1	1	NULL	ABCDE
+1	1		bar1
+1	2		bar2
+1	3	NULL	bar3
+1	4		bar4
+SELECT 1 AS id_master, 1 AS id, 'ABCDE' AS text1, 'ABCDE' AS text2 UNION SELECT id_master, t2.id, text1, text2 FROM t1 LEFT JOIN t2 ON t1.id = t2.id_master;
+id_master	id	text1	text2
+1	1	ABCDE	ABCDE
+1	1	foo1	bar1
+1	2	foo2	bar2
+1	3	NULL	bar3
+1	4	foo4	bar4
+drop table if exists t1,t2;
+(SELECT 1,3) UNION (SELECT 2,1) ORDER BY (SELECT 2);
+1	3
+1	3
+2	1
+create table t1 (a int not null primary key auto_increment, b int, key(b));
+create table t2 (a int not null primary key auto_increment, b int);
+insert into t1 (b) values (1),(2),(2),(3);
+insert into t2 (b) values (10),(11),(12),(13);
+explain (select * from t1 where a=1) union (select * from t2 where a=1);
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	t1	const	PRIMARY	PRIMARY	4	const	1	
+2	UNION	t2	const	PRIMARY	PRIMARY	4	const	1	
+(select * from t1 where a=5) union (select * from t2 where a=1);
+a	b
+1	10
+(select * from t1 where a=5 and a=6) union (select * from t2 where a=1);
+a	b
+1	10
+(select t1.a,t1.b from t1,t2 where t1.a=5) union (select * from t2 where a=1);
+a	b
+1	10
+(select * from t1 where a=1) union (select t1.a,t2.a from t1,t2 where t1.a=t2.a);
+a	b
+1	1
+2	2
+3	3
+4	4
+explain (select * from t1 where a=1 and b=10) union (select t1.a,t2.a from t1,t2 where t1.a=t2.a);
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	NULL	NULL	NULL	NULL	NULL	NULL	NULL	Impossible WHERE noticed after reading const tables
+2	UNION	t1	index	PRIMARY	PRIMARY	4	NULL	4	Using index
+2	UNION	t2	index	PRIMARY	PRIMARY	4	NULL	4	Using where; Using index
+explain (select * from t1 where a=1) union (select * from t1 where b=1);
+id	select_type	table	type	possible_keys	key	key_len	ref	rows	Extra
+1	PRIMARY	t1	const	PRIMARY	PRIMARY	4	const	1	
+2	UNION	t1	ref	b	b	5	const	1	Using where
+drop table t1,t2;
+(select 1) union (select 2) order by 0;
+Unknown column '0' in 'order clause'
+SELECT @a:=1 UNION SELECT @a:=@a+1;
+@a:=1
+1
+2
