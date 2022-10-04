@@ -1948,20 +1948,20 @@ int setup_wild(THD *thd, TABLE_LIST *tables, List<Item> &fields,
   while ( wild_num && (item= it++))
   {    
     if (item->type() == Item::FIELD_ITEM && ((Item_field*) item)->field_name &&
-	((Item_field*) item)->field_name[0] == '*')
+	    ((Item_field*) item)->field_name[0] == '*')
     {
       uint elem= fields.elements;
       if (insert_fields(thd,tables,((Item_field*) item)->db_name,
 			((Item_field*) item)->table_name, &it))
-	return (-1);
+	    return (-1);
       if (sum_func_list)
       {
-	/*
-	  sum_func_list is a list that has the fields list as a tail.
-	  Because of this we have to update the element count also for this
-	  list after expanding the '*' entry.
-	*/
-	sum_func_list->elements+= fields.elements - elem;
+	    /*
+	      sum_func_list is a list that has the fields list as a tail.
+	      Because of this we have to update the element count also for this
+	      list after expanding the '*' entry.
+	    */
+	    sum_func_list->elements+= fields.elements - elem;
       }
       wild_num--;
     }
