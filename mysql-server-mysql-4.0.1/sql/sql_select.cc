@@ -2482,8 +2482,8 @@ make_join_readinfo(JOIN *join,uint options)
       table->status=STATUS_NO_RECORD;
       if (tab->select)
       {
-	delete tab->select->quick;
-	tab->select->quick=0;
+	    delete tab->select->quick;
+	    tab->select->quick=0;
       }
       delete tab->quick;
       tab->quick=0;
@@ -2493,16 +2493,16 @@ make_join_readinfo(JOIN *join,uint options)
       if (table->used_keys & ((key_map) 1 << tab->ref.key) &&
 	  !table->no_keyread)
       {
-	table->key_read=1;
-	table->file->extra(HA_EXTRA_KEYREAD);
+		  table->key_read = 1;
+		  table->file->extra(HA_EXTRA_KEYREAD);
       }
       break;
     case JT_REF:
       table->status=STATUS_NO_RECORD;
       if (tab->select)
       {
-	delete tab->select->quick;
-	tab->select->quick=0;
+		  delete tab->select->quick;
+		  tab->select->quick = 0;
       }
       delete tab->quick;
       tab->quick=0;
@@ -2512,8 +2512,8 @@ make_join_readinfo(JOIN *join,uint options)
       if (table->used_keys & ((key_map) 1 << tab->ref.key) &&
 	  !table->no_keyread)
       {
-	table->key_read=1;
-	table->file->extra(HA_EXTRA_KEYREAD);
+		  table->key_read = 1;
+		  table->file->extra(HA_EXTRA_KEYREAD);
       }
       break;
     case JT_FT:
@@ -2530,63 +2530,63 @@ make_join_readinfo(JOIN *join,uint options)
       if (i != join->const_tables && !(options & SELECT_NO_JOIN_CACHE) &&
 	  tab->use_quick != 2 && !tab->on_expr)
       {
-	if ((options & SELECT_DESCRIBE) ||
-	    !join_init_cache(join->thd,join->join_tab+join->const_tables,
-			     i-join->const_tables))
-	{
-	  tab[-1].next_select=sub_select_cache; /* Patch previous */
-	}
+	    if ((options & SELECT_DESCRIBE) ||
+	        !join_init_cache(join->thd,join->join_tab+join->const_tables,
+			         i-join->const_tables))
+	    {
+	      tab[-1].next_select=sub_select_cache; /* Patch previous */
+	    }
       }
       /* These init changes read_record */
       if (tab->use_quick == 2)
       {
-	join->thd->lex.select_lex.options|=QUERY_NO_GOOD_INDEX_USED;
-	tab->read_first_record= join_init_quick_read_record;
-	statistic_increment(select_range_check_count, &LOCK_status);
+		  join->thd->lex.select_lex.options |= QUERY_NO_GOOD_INDEX_USED;
+		  tab->read_first_record = join_init_quick_read_record;
+		  statistic_increment(select_range_check_count, &LOCK_status);
       }
       else
       {
-	tab->read_first_record= join_init_read_record;
-	if (i == join->const_tables)
-	{
-	  if (tab->select && tab->select->quick)
-	  {
-	    statistic_increment(select_range_count, &LOCK_status);
-	  }
-	  else
-	  {
-	    join->thd->lex.select_lex.options|=QUERY_NO_INDEX_USED;
-	    statistic_increment(select_scan_count, &LOCK_status);
-	  }
-	}
-	else
-	{
-	  if (tab->select && tab->select->quick)
-	  {
-	    statistic_increment(select_full_range_join_count, &LOCK_status);
-	  }
-	  else
-	  {
-	    join->thd->lex.select_lex.options|=QUERY_NO_INDEX_USED;
-	    statistic_increment(select_full_join_count, &LOCK_status);
-	  }
-	}
-	if (!table->no_keyread)
-	{
-	  if (tab->select && tab->select->quick &&
-	      table->used_keys & ((key_map) 1 << tab->select->quick->index))
-	  {
-	    table->key_read=1;
-	    table->file->extra(HA_EXTRA_KEYREAD);
-	  }
-	  else if (table->used_keys && ! (tab->select && tab->select->quick))
-	  {					// Only read index tree
-	    tab->index=find_shortest_key(table, table->used_keys);
-	    tab->table->file->index_init(tab->index);
-	    tab->read_first_record= join_init_read_first_with_key;
-	    tab->type=JT_NEXT;		// Read with index_first / index_next
-	  }
-	}
+	    tab->read_first_record= join_init_read_record;
+	    if (i == join->const_tables)
+	    {
+	      if (tab->select && tab->select->quick)
+	      {
+	        statistic_increment(select_range_count, &LOCK_status);
+	      }
+	      else
+	      {
+	        join->thd->lex.select_lex.options|=QUERY_NO_INDEX_USED;
+	        statistic_increment(select_scan_count, &LOCK_status);
+	      }
+	    }
+	    else
+	    {
+	      if (tab->select && tab->select->quick)
+	      {
+	        statistic_increment(select_full_range_join_count, &LOCK_status);
+	      }
+	      else
+	      {
+	        join->thd->lex.select_lex.options|=QUERY_NO_INDEX_USED;
+	        statistic_increment(select_full_join_count, &LOCK_status);
+	      }
+	    }
+	    if (!table->no_keyread)
+	    {
+	      if (tab->select && tab->select->quick &&
+	          table->used_keys & ((key_map) 1 << tab->select->quick->index))
+	      {
+	        table->key_read=1;
+	        table->file->extra(HA_EXTRA_KEYREAD);
+	      }
+	      else if (table->used_keys && ! (tab->select && tab->select->quick))
+	      {					// Only read index tree
+	        tab->index=find_shortest_key(table, table->used_keys);
+	        tab->table->file->index_init(tab->index);
+	        tab->read_first_record= join_init_read_first_with_key;
+	        tab->type=JT_NEXT;		// Read with index_first / index_next
+	      }
+	    }
       }
       break;
     default:
