@@ -710,57 +710,57 @@ bool Item_field::fix_fields(THD *thd, TABLE_LIST *tables, Item **ref)
 	    break; // do not look over derived table
 	}
       if (!tmp)
-	return -1;
+	    return -1;
       else if (!refer)
-	return 1;
+	    return 1;
       else if (tmp == not_found_field && refer == (Item **)not_found_item)
       {
-	// call to return error code
-	find_field_in_tables(thd, this, tables, &where, 1);
-	return -1;
+	    // call to return error code
+	    find_field_in_tables(thd, this, tables, &where, 1);
+	    return -1;
       }
       else if (refer != (Item **)not_found_item)
       {
-	if (!(*refer)->fixed)
-	{
-	  my_error(ER_ILLEGAL_REFERENCE, MYF(0), name,
-		   "forward reference in item list");
-	  return -1;
-	}
+	    if (!(*refer)->fixed)
+	    {
+	      my_error(ER_ILLEGAL_REFERENCE, MYF(0), name,
+		       "forward reference in item list");
+	      return -1;
+	    }
 
-	Item_ref *r;
-	*ref= r= new Item_ref(last->ref_pointer_array + counter
-			      , (char *)table_name,
-			   (char *)field_name);
-	if (!r)
-	  return 1;
-	if (r->fix_fields(thd, tables, ref) || r->check_cols(1))
-	  return 1;
-	// store pointer on SELECT_LEX from which item is dependent
-	r->depended_from= last;
-	cursel->mark_as_dependent(last);
-	return 0;
+	    Item_ref *r;
+	    *ref= r= new Item_ref(last->ref_pointer_array + counter
+			          , (char *)table_name,
+			       (char *)field_name);
+	    if (!r)
+	      return 1;
+	    if (r->fix_fields(thd, tables, ref) || r->check_cols(1))
+	      return 1;
+	    // store pointer on SELECT_LEX from which item is dependent
+	    r->depended_from= last;
+	    cursel->mark_as_dependent(last);
+	    return 0;
       }
       else
       {
-	// store pointer on SELECT_LEX from wich item is dependent
-	depended_from= last;
-	/*
-	  Mark all selects from resolved to 1 before select where was 
-	  found table as depended (of select where was found table)
-	*/
-	thd->lex.current_select->mark_as_dependent(last);
-	if (depended_from->having_fix_field)
-	{
-	  Item_ref *rf;
-	  *ref= rf= new Item_ref((where->db[0]?where->db:0), 
-				 (char *)where->alias,
-				 (char *)field_name);
-	  if (!rf)
-	    return 1;
-	  (rf)->outer_resolving= outer_resolving;
-	  return rf->fix_fields(thd, tables, ref) ||  rf->check_cols(1);
-	}
+	    // store pointer on SELECT_LEX from wich item is dependent
+	    depended_from= last;
+	    /*
+	      Mark all selects from resolved to 1 before select where was 
+	      found table as depended (of select where was found table)
+	    */
+	    thd->lex.current_select->mark_as_dependent(last);
+	    if (depended_from->having_fix_field)
+	    {
+	      Item_ref *rf;
+	      *ref= rf= new Item_ref((where->db[0]?where->db:0), 
+				     (char *)where->alias,
+				     (char *)field_name);
+	      if (!rf)
+	        return 1;
+	      (rf)->outer_resolving= outer_resolving;
+	      return rf->fix_fields(thd, tables, ref) ||  rf->check_cols(1);
+	    }
       }
     } 
     else if (!tmp)

@@ -110,10 +110,10 @@ Item_func::fix_fields(THD *thd, TABLE_LIST *tables, Item **ref)
     for (arg=args, arg_end=args+arg_count; arg != arg_end ; arg++)
     {
       if ((*arg)->fix_fields(thd, tables, arg) ||
-	  (*arg)->check_cols(allowed_arg_cols))
-	return 1;				/* purecov: inspected */
+	        (*arg)->check_cols(allowed_arg_cols))
+	    return 1;				/* purecov: inspected */
       if ((*arg)->maybe_null)
-	maybe_null=1;
+	    maybe_null=1;
       
       with_sum_func= with_sum_func || (*arg)->with_sum_func;
       used_tables_cache|=(*arg)->used_tables();
