@@ -4346,26 +4346,26 @@ join_read_const_tables(JOIN *join)
     {
       if ((error=join_read_system(join->join_tab+i)))
       {						// Info for DESCRIBE
-	join->join_tab[i].info="const row not found";
-	join->best_positions[i].records_read=0.0;
-	if (!form->outer_join || error > 0)
-	  DBUG_RETURN(error);
+		  join->join_tab[i].info = "const row not found";
+		  join->best_positions[i].records_read = 0.0;
+		  if (!form->outer_join || error > 0)
+			  DBUG_RETURN(error);
       }
     }
     else
     {
       if ((error=join_read_const(join->join_tab+i)))
       {
-	join->join_tab[i].info="unique row not found";
-	join->best_positions[i].records_read=0.0;
-	if (!form->outer_join || error > 0)
-	  DBUG_RETURN(error);
+		  join->join_tab[i].info = "unique row not found";
+		  join->best_positions[i].records_read = 0.0;
+		  if (!form->outer_join || error > 0)
+			  DBUG_RETURN(error);
       }
     }
     if (join->join_tab[i].on_expr && !form->null_row)
     {
       if ((form->null_row= test(join->join_tab[i].on_expr->val_int() == 0)))
-	empty_record(form);
+	    empty_record(form);
     }
     if (!form->null_row)
       form->maybe_null=0;
