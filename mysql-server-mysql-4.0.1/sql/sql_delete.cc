@@ -278,7 +278,7 @@ multi_delete::initialize_tables(JOIN *join)
       walk->table=tab->table;
       walk=walk->next;
       if (tab == join->join_tab)
-	tab->table->no_keyread=1;
+	    tab->table->no_keyread=1;
     }
   }
 }
