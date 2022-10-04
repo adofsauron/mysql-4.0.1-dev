@@ -7660,7 +7660,7 @@ make_sum_func_list(JOIN *join,List<Item> &fields)
       *func++=(Item_sum*) field;
       /* let COUNT(DISTINCT) create the temporary table */
       if (((Item_sum*) field)->setup(join->thd))
-	DBUG_RETURN(TRUE);
+	    DBUG_RETURN(TRUE);
     }
   }
   *func=0;					// End marker
