@@ -4089,14 +4089,14 @@ do_select(JOIN *join,List<Item> *fields,TABLE *table,Procedure *procedure)
     {
       if (table->keys)
       {
-	DBUG_PRINT("info",("Using end_update"));
-	end_select=end_update;
-	table->file->index_init(0);
+		  DBUG_PRINT("info", ("Using end_update"));
+		  end_select = end_update;
+		  table->file->index_init(0);
       }
       else
       {
-	DBUG_PRINT("info",("Using end_unique_update"));
-	end_select=end_unique_update;
+		  DBUG_PRINT("info", ("Using end_unique_update"));
+		  end_select = end_unique_update;
       }
     }
     else if (join->sort_and_group)
@@ -4143,7 +4143,7 @@ do_select(JOIN *join,List<Item> *fields,TABLE *table,Procedure *procedure)
     {
       join_free(join);				// Unlock all cursors
       if (join->result->send_eof())
-	error= -1;
+	    error= -1;
     }
     DBUG_PRINT("info",("%ld records output",join->send_records));
   }
