@@ -4731,9 +4731,9 @@ end_send(JOIN *join, JOIN_TAB *join_tab __attribute__((unused)),
     {
       if (join->select_options & OPTION_FOUND_ROWS)
       {
-	join->do_send_rows=0;
-	join->thd->select_limit = HA_POS_ERROR;
-	DBUG_RETURN(0);
+	    join->do_send_rows=0;
+	    join->thd->select_limit = HA_POS_ERROR;
+	    DBUG_RETURN(0);
       }
       DBUG_RETURN(-3);				// Abort nicely
     }
