@@ -163,7 +163,7 @@ typedef struct st_table_list
     st_table_list  *table_list; /* pointer to node of list of all tables */
   };
   class st_select_lex_unit *derived;	/* SELECT_LEX_UNIT of derived table */
- GRANT_INFO	grant;
+  GRANT_INFO	grant;
   thr_lock_type lock_type;
   uint		outer_join;		/* Which join type */
   uint		shared;			/* Used in union or in multi-upd */
