@@ -4219,24 +4219,24 @@ sub_select(JOIN *join,JOIN_TAB *join_tab,bool end_of_records)
     {
       if (join->thd->killed)			// Aborted by user
       {
-	my_error(ER_SERVER_SHUTDOWN,MYF(0));	/* purecov: inspected */
-	return -2;				/* purecov: inspected */
+	    my_error(ER_SERVER_SHUTDOWN,MYF(0));	/* purecov: inspected */
+	    return -2;				/* purecov: inspected */
       }
       join->examined_rows++;
       if (!on_expr || on_expr->val_int())
       {
-	found=1;
-	if (not_exists_optimize)
-	  break;			// Searching after not null columns
-	if (!select_cond || select_cond->val_int())
-	{
-	  if ((error=(*join_tab->next_select)(join,join_tab+1,0)) < 0)
-	    return error;
-	  if (not_used_in_distinct && found_records != join->found_records)
-	    return 0;
-	}
-	else
-	  info->file->unlock_row();
+	    found=1;
+	    if (not_exists_optimize)
+	      break;			// Searching after not null columns
+	    if (!select_cond || select_cond->val_int())
+	    {
+	      if ((error=(*join_tab->next_select)(join,join_tab+1,0)) < 0)
+	        return error;
+	      if (not_used_in_distinct && found_records != join->found_records)
+	        return 0;
+	    }
+	    else
+	      info->file->unlock_row();
       }
     } while (!(error=info->read_record(info)));
   }
@@ -4250,7 +4250,7 @@ sub_select(JOIN *join,JOIN_TAB *join_tab,bool end_of_records)
     if (!select_cond || select_cond->val_int())
     {
       if ((error=(*join_tab->next_select)(join,join_tab+1,0)) < 0)
-	return error;				/* purecov: inspected */
+	    return error;				/* purecov: inspected */
     }
   }
   return 0;
