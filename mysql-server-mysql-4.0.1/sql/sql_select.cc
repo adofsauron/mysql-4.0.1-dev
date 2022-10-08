@@ -2817,24 +2817,24 @@ remove_const(JOIN *join,ORDER *first_order, COND *cond, bool *simple_order)
     else
     {
       if (order_tables & RAND_TABLE_BIT)
-	*simple_order=0;
+	    *simple_order=0;
       else
       {
-	Item *comp_item=0;
-	if (cond && const_expression_in_where(cond,order->item[0], &comp_item))
-	{
-	  DBUG_PRINT("info",("removing: %s", order->item[0]->full_name()));
-	  continue;
-	}
-	if ((ref=order_tables & (not_const_tables ^ first_table)))
-	{
-	  if (only_eq_ref_tables(join,first_order,ref))
-	  {
-	    DBUG_PRINT("info",("removing: %s", order->item[0]->full_name()));
-	    continue;
-	  }
-	  *simple_order=0;			// Must do a temp table to sort
-	}
+	    Item *comp_item=0;
+	    if (cond && const_expression_in_where(cond,order->item[0], &comp_item))
+	    {
+	      DBUG_PRINT("info",("removing: %s", order->item[0]->full_name()));
+	      continue;
+	    }
+	    if ((ref=order_tables & (not_const_tables ^ first_table)))
+	    {
+	      if (only_eq_ref_tables(join,first_order,ref))
+	      {
+	        DBUG_PRINT("info",("removing: %s", order->item[0]->full_name()));
+	        continue;
+	      }
+	      *simple_order=0;			// Must do a temp table to sort
+	    }
       }
     }
     *prev_ptr= order;				// use this entry
