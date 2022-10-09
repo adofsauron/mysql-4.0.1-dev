@@ -4304,10 +4304,10 @@ flush_cached_records(JOIN *join,JOIN_TAB *join_tab,bool skipp_last)
       reset_cache(&join_tab->cache);
       for (i=(join_tab->cache.records- (skipp_last ? 1 : 0)) ; i-- > 0 ;)
       {
-	read_cached_record(join_tab);
-	if (!select || !select->skipp_record())
-	  if ((error=(join_tab->next_select)(join,join_tab+1,0)) < 0)
-	    return error; /* purecov: inspected */
+	    read_cached_record(join_tab);
+	    if (!select || !select->skipp_record())
+	      if ((error=(join_tab->next_select)(join,join_tab+1,0)) < 0)
+	        return error; /* purecov: inspected */
       }
     }
   } while (!(error=info->read_record(info)));
