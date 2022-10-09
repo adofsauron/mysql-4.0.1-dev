@@ -787,28 +787,28 @@ JOIN::optimize()
 			test_if_skip_sort_order(tab, group_list, select_limit,
 						1) != 0);
       if ((skip_group && all_order_fields_used) ||
-	  select_limit == HA_POS_ERROR ||
-	  (order && !skip_sort_order))
+		  select_limit == HA_POS_ERROR ||
+		  (order && !skip_sort_order))
       {
-	/*  Change DISTINCT to GROUP BY */
-	select_distinct= 0;
-	no_order= !order;
-	if (all_order_fields_used)
-	{
-	  if (order && skip_sort_order)
-	  {
-	    /*
-	      Force MySQL to read the table in sorted order to get result in
-	      ORDER BY order.
-	    */
-	    tmp_table_param.quick_group=0;
-	  }
-	  order=0;
-        }
-	group=1;				// For end_write_group
+	    /*  Change DISTINCT to GROUP BY */
+	    select_distinct= 0;
+	    no_order= !order;
+	    if (all_order_fields_used)
+	    {
+	      if (order && skip_sort_order)
+	      {
+	        /*
+	          Force MySQL to read the table in sorted order to get result in
+	          ORDER BY order.
+	        */
+	        tmp_table_param.quick_group=0;
+	      }
+	      order=0;
+            }
+	    group=1;				// For end_write_group
       }
       else
-	group_list= 0;
+	    group_list= 0;
     }
     else if (thd->is_fatal_error)			// End of memory
       DBUG_RETURN(1);
@@ -889,33 +889,33 @@ JOIN::optimize()
       if (join_tab[0].type == JT_EQ_REF &&
 	  join_tab[0].ref.items[0]->name == in_left_expr_name)
       {
-	if (test_in_subselect(&where))
-	{
-	  join_tab[0].type= JT_UNIQUE_SUBQUERY;
-	  error= 0;
-	  DBUG_RETURN(unit->item->
-		      change_engine(new
-				    subselect_uniquesubquery_engine(thd,
-								    join_tab,
-								    unit->item,
-								    where)));
-	}
+		  if (test_in_subselect(&where))
+		  {
+			  join_tab[0].type = JT_UNIQUE_SUBQUERY;
+			  error = 0;
+			  DBUG_RETURN(unit->item->
+				  change_engine(new
+					  subselect_uniquesubquery_engine(thd,
+						  join_tab,
+						  unit->item,
+						  where)));
+		  }
       }
       else if (join_tab[0].type == JT_REF &&
 	       join_tab[0].ref.items[0]->name == in_left_expr_name)
       {
-	if (test_in_subselect(&where))
-	{
-	  join_tab[0].type= JT_INDEX_SUBQUERY;
-	  error= 0;
-	  DBUG_RETURN(unit->item->
-		      change_engine(new
-				    subselect_indexsubquery_engine(thd,
-								   join_tab,
-								   unit->item,
-								   where,
-								   0)));
-	}
+	    if (test_in_subselect(&where))
+		{
+			join_tab[0].type = JT_INDEX_SUBQUERY;
+			error = 0;
+			DBUG_RETURN(unit->item->
+				change_engine(new
+					subselect_indexsubquery_engine(thd,
+						join_tab,
+						unit->item,
+						where,
+						0)));
+		}
       }
     } else if (join_tab[0].type == JT_REF_OR_NULL &&
 	       join_tab[0].ref.items[0]->name == in_left_expr_name &&
@@ -927,9 +927,9 @@ JOIN::optimize()
       error= 0;
 
       if ((conds= remove_additional_cond(conds)))
-	join_tab->info= "Using index; Using where";
+	    join_tab->info= "Using index; Using where";
       else
-	join_tab->info= "Using index";
+	    join_tab->info= "Using index";
 
       DBUG_RETURN(unit->item->
 		  change_engine(new subselect_indexsubquery_engine(thd,
@@ -1043,25 +1043,25 @@ JOIN::optimize()
       thd->proc_info="Sorting for group";
       if (create_sort_index(thd, this, group_list,
 			    HA_POS_ERROR, HA_POS_ERROR) ||
-	  alloc_group_fields(this, group_list) ||
-          make_sum_func_list(all_fields, fields_list, 1) ||
-          setup_sum_funcs(thd, sum_funcs))
-	DBUG_RETURN(1);
-      group_list=0;
+		  alloc_group_fields(this, group_list) ||
+		  make_sum_func_list(all_fields, fields_list, 1) ||
+		  setup_sum_funcs(thd, sum_funcs))
+	    DBUG_RETURN(1);
+        group_list=0;
     }
     else
     {
       if (make_sum_func_list(all_fields, fields_list, 0) ||
           setup_sum_funcs(thd, sum_funcs))
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
       if (!group_list && ! exec_tmp_table1->distinct && order && simple_order)
       {
-	DBUG_PRINT("info",("Sorting for order"));
-	thd->proc_info="Sorting for order";
-	if (create_sort_index(thd, this, order,
-                              HA_POS_ERROR, HA_POS_ERROR))
-	  DBUG_RETURN(1);
-	order=0;
+		  DBUG_PRINT("info", ("Sorting for order"));
+		  thd->proc_info = "Sorting for order";
+		  if (create_sort_index(thd, this, order,
+			  HA_POS_ERROR, HA_POS_ERROR))
+		    DBUG_RETURN(1);
+		  order = 0;
       }
     }
     
@@ -1077,24 +1077,24 @@ JOIN::optimize()
       JOIN_TAB *last_join_tab= join_tab+tables-1;
       do
       {
-	if (used_tables & last_join_tab->table->map)
-	  break;
-	last_join_tab->not_used_in_distinct=1;
+		  if (used_tables & last_join_tab->table->map)
+			  break;
+		  last_join_tab->not_used_in_distinct = 1;
       } while (last_join_tab-- != join_tab);
       /* Optimize "select distinct b from t1 order by key_part_1 limit #" */
       if (order && skip_sort_order)
       {
- 	/* Should always succeed */
-	if (test_if_skip_sort_order(&join_tab[const_tables],
-				    order, unit->select_limit_cnt, 0))
-	  order=0;
+ 	    /* Should always succeed */
+	    if (test_if_skip_sort_order(&join_tab[const_tables],
+				        order, unit->select_limit_cnt, 0))
+	      order=0;
       }
     }
     
     if (thd->lex->subqueries)
     {
       if (!(tmp_join= (JOIN*)thd->alloc(sizeof(JOIN))))
-	DBUG_RETURN(-1);
+	    DBUG_RETURN(-1);
       error= 0;				// Ensure that tmp_join.error= 0
       restore_tmp();
     }
