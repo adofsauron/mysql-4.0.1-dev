@@ -1014,16 +1014,16 @@ make_join_statistics(JOIN *join,TABLE_LIST *tables,COND *conds,
     {
       if (s->dependent)				// If dependent on some table
       {
-	if (s->dependent & ~(const_table_map)) // All dep. must be constants
-	  continue;
-	if (s->table->file->records <= 1L &&
-	    !(s->table->file->option_flag() & HA_NOT_EXACT_COUNT))
-	{					// system table
-	  s->type=JT_SYSTEM;
-	  const_table_map|=s->table->map;
-	  set_position(join,const_count++,s,(KEYUSE*) 0);
-	  continue;
-	}
+	    if (s->dependent & ~(const_table_map)) // All dep. must be constants
+	      continue;
+	    if (s->table->file->records <= 1L &&
+	        !(s->table->file->option_flag() & HA_NOT_EXACT_COUNT))
+	    {					// system table
+	      s->type=JT_SYSTEM;
+	      const_table_map|=s->table->map;
+	      set_position(join,const_count++,s,(KEYUSE*) 0);
+	      continue;
+	    }
       }
       /* check if table can be read by key or table only uses const refs */
       if ((keyuse=s->keyuse))
@@ -1527,8 +1527,8 @@ update_ref_and_keys(THD *thd, DYNAMIC_ARRAY *keyuse,JOIN_TAB *join_tab,
     {
       if (join_tab[i].on_expr)
       {
-	add_key_fields(join_tab,&end,&and_level,join_tab[i].on_expr,
-		       join_tab[i].table->map);
+		  add_key_fields(join_tab, &end, &and_level, join_tab[i].on_expr,
+			  join_tab[i].table->map);
       }
     }
     if (init_dynamic_array(keyuse,sizeof(KEYUSE),20,64))
@@ -1564,18 +1564,17 @@ update_ref_and_keys(THD *thd, DYNAMIC_ARRAY *keyuse,JOIN_TAB *join_tab,
     for (i=0 ; i < keyuse->elements-1 ; i++,use++)
     {
       if (!use->used_tables)
-	use->table->const_key_parts[use->key] |=
-	  (key_part_map) 1 << use->keypart;
+		  use->table->const_key_parts[use->key] |= (key_part_map)1 << use->keypart;
       if (use->keypart != FT_KEYPART)
       {
-	if (use->key == prev->key && use->table == prev->table)
-	{
-	  if (prev->keypart+1 < use->keypart ||
-	      prev->keypart == use->keypart && found_eq_constant)
-	    continue;				/* remove */
-	}
-	else if (use->keypart != 0)		// First found must be 0
-	  continue;
+	    if (use->key == prev->key && use->table == prev->table)
+	    {
+	      if (prev->keypart+1 < use->keypart ||
+	          prev->keypart == use->keypart && found_eq_constant)
+	        continue;				/* remove */
+	    }
+	    else if (use->keypart != 0)		// First found must be 0
+	      continue;
       }
 
       *save_pos= *use;
@@ -1583,7 +1582,7 @@ update_ref_and_keys(THD *thd, DYNAMIC_ARRAY *keyuse,JOIN_TAB *join_tab,
       found_eq_constant= !use->used_tables;
       /* Save ptr to first use */
       if (!use->table->reginfo.join_tab->keyuse)
-	use->table->reginfo.join_tab->keyuse=save_pos;
+	    use->table->reginfo.join_tab->keyuse=save_pos;
       use->table->reginfo.join_tab->checked_keys|= (key_map) 1 << use->key;
       save_pos++;
     }
@@ -3011,18 +3010,18 @@ propagate_cond_constants(I_List<COND_CMP> *save_list,COND *and_level,
       I_List_iterator<COND_CMP> cond_itr(save);
       COND_CMP *cond_cmp;
       while ((cond_cmp=cond_itr++))
-	if (!cond_cmp->cmp_func->arguments()[0]->const_item())
-	  change_cond_ref_to_const(&save,cond_cmp->and_level,
-				   cond_cmp->and_level,
-				   cond_cmp->cmp_func->arguments()[0],
-				   cond_cmp->cmp_func->arguments()[1]);
+		  if (!cond_cmp->cmp_func->arguments()[0]->const_item())
+			  change_cond_ref_to_const(&save, cond_cmp->and_level,
+				  cond_cmp->and_level,
+				  cond_cmp->cmp_func->arguments()[0],
+				  cond_cmp->cmp_func->arguments()[1]);
     }
   }
   else if (and_level != cond && !cond->marker)		// In a AND group
   {
     if (cond->type() == Item::FUNC_ITEM &&
-	(((Item_func*) cond)->functype() == Item_func::EQ_FUNC ||
-	 ((Item_func*) cond)->functype() == Item_func::EQUAL_FUNC))
+	    (((Item_func*) cond)->functype() == Item_func::EQ_FUNC ||
+	    ((Item_func*) cond)->functype() == Item_func::EQUAL_FUNC))
     {
       Item_func_eq *func=(Item_func_eq*) cond;
       bool left_const= func->arguments()[0]->const_item();
@@ -3112,7 +3111,7 @@ remove_eq_conds(COND *cond,Item::cond_result *cond_value)
 #ifdef DELETE_ITEMS
 	    delete item;				// This may be shared
 #endif
-	VOID(li.replace(new_item));
+	    VOID(li.replace(new_item));
       }
       if (*cond_value == Item::COND_UNDEF)
 	    *cond_value=tmp_cond_value;
@@ -3212,7 +3211,7 @@ remove_eq_conds(COND *cond,Item::cond_result *cond_value)
     {
       if (!left_item->maybe_null ||
 	  ((Item_func*) cond)->functype() == Item_func::EQUAL_FUNC)
-	return (COND*) 0;			// Compare of identical items
+	    return (COND*) 0;			// Compare of identical items
     }
   }
   *cond_value=Item::COND_OK;
