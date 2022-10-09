@@ -9,6 +9,9 @@ aclocal
 
 autoheader
 
-automake
+automake --add-missing
 
+./configure
+
+make -j`nproc`
 
