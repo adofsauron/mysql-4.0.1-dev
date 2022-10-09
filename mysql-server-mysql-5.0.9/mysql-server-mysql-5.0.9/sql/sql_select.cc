@@ -5388,20 +5388,20 @@ make_join_select(JOIN *join,SQL_SELECT *select,COND *cond)
 	It solve problem with select like SELECT * FROM t1 WHERE rand() > 0.5
       */
       if (i == join->tables-1)
-	current_map|= OUTER_REF_TABLE_BIT | RAND_TABLE_BIT;
+	    current_map|= OUTER_REF_TABLE_BIT | RAND_TABLE_BIT;
       used_tables|=current_map;
 
       if (tab->type == JT_REF && tab->quick &&
 	  (uint) tab->ref.key == tab->quick->index &&
 	  tab->ref.key_length < tab->quick->max_used_key_length)
       {
-	/* Range uses longer key;  Use this instead of ref on key */
-	tab->type=JT_ALL;
-	use_quick_range=1;
-	tab->use_quick=1;
-        tab->ref.key= -1;
-	tab->ref.key_parts=0;		// Don't use ref key.
-	join->best_positions[i].records_read= rows2double(tab->quick->records);
+	    /* Range uses longer key;  Use this instead of ref on key */
+	    tab->type=JT_ALL;
+	    use_quick_range=1;
+	    tab->use_quick=1;
+            tab->ref.key= -1;
+	    tab->ref.key_parts=0;		// Don't use ref key.
+	    join->best_positions[i].records_read= rows2double(tab->quick->records);
       }
 
       tmp= NULL;
@@ -5439,38 +5439,38 @@ make_join_select(JOIN *join,SQL_SELECT *select,COND *cond)
 	  thd->memdup((gptr) select, sizeof(SQL_SELECT));
 	if (!sel)
 	  DBUG_RETURN(1);			// End of memory
-        /*
-          If tab is an inner table of an outer join operation,
-          add a match guard to the pushed down predicate.
-          The guard will turn the predicate on only after
-          the first match for outer tables is encountered.
+    /*
+        If tab is an inner table of an outer join operation,
+        add a match guard to the pushed down predicate.
+        The guard will turn the predicate on only after
+        the first match for outer tables is encountered.
 	*/        
-        if (cond)
+    if (cond)
+    {
+        /*
+        Because of QUICK_GROUP_MIN_MAX_SELECT there may be a select without
+        a cond, so neutralize the hack above.
+        */
+        if (!(tmp= add_found_match_trig_cond(first_inner_tab, tmp, 0)))
+        DBUG_RETURN(1);
+        tab->select_cond=sel->cond=tmp;
+        /* Push condition to storage engine if this is enabled
+            and the condition is not guarded */
+        tab->table->file->pushed_cond= NULL;
+	    if (thd->variables.engine_condition_pushdown)
         {
-          /*
-            Because of QUICK_GROUP_MIN_MAX_SELECT there may be a select without
-            a cond, so neutralize the hack above.
-          */
-          if (!(tmp= add_found_match_trig_cond(first_inner_tab, tmp, 0)))
-            DBUG_RETURN(1);
-          tab->select_cond=sel->cond=tmp;
-          /* Push condition to storage engine if this is enabled
-             and the condition is not guarded */
-          tab->table->file->pushed_cond= NULL;
-	  if (thd->variables.engine_condition_pushdown)
-          {
-            COND *push_cond= 
-              make_cond_for_table(tmp, current_map, current_map);
-            if (push_cond)
-            {
-              /* Push condition to handler */
-              if (!tab->table->file->cond_push(push_cond))
-                tab->table->file->pushed_cond= push_cond;
-            }
-          }
+        COND *push_cond= 
+            make_cond_for_table(tmp, current_map, current_map);
+        if (push_cond)
+        {
+            /* Push condition to handler */
+            if (!tab->table->file->cond_push(push_cond))
+            tab->table->file->pushed_cond= push_cond;
         }
-        else
-          tab->select_cond= sel->cond= NULL;
+        }
+    }
+    else
+        tab->select_cond= sel->cond= NULL;
 
 	sel->head=tab->table;
 	DBUG_EXECUTE("where",print_where(tmp,tab->table->alias););
