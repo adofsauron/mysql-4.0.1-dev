@@ -3028,27 +3028,27 @@ propagate_cond_constants(I_List<COND_CMP> *save_list,COND *and_level,
       bool left_const= func->arguments()[0]->const_item();
       bool right_const=func->arguments()[1]->const_item();
       if (!(left_const && right_const) &&
-	  (func->arguments()[0]->result_type() ==
-	   (func->arguments()[1]->result_type())))
+	    (func->arguments()[0]->result_type() ==
+	    (func->arguments()[1]->result_type())))
       {
-	if (right_const)
-	{
-	  func->arguments()[1]=resolve_const_item(func->arguments()[1],
-						  func->arguments()[0]);
-	  func->update_used_tables();
-	  change_cond_ref_to_const(save_list,and_level,and_level,
-				   func->arguments()[0],
-				   func->arguments()[1]);
-	}
-	else if (left_const)
-	{
-	  func->arguments()[0]=resolve_const_item(func->arguments()[0],
-						  func->arguments()[1]);
-	  func->update_used_tables();
-	  change_cond_ref_to_const(save_list,and_level,and_level,
-				   func->arguments()[1],
-				   func->arguments()[0]);
-	}
+		  if (right_const)
+		  {
+			  func->arguments()[1] = resolve_const_item(func->arguments()[1],
+				  func->arguments()[0]);
+			  func->update_used_tables();
+			  change_cond_ref_to_const(save_list, and_level, and_level,
+				  func->arguments()[0],
+				  func->arguments()[1]);
+		  }
+		  else if (left_const)
+		  {
+			  func->arguments()[0] = resolve_const_item(func->arguments()[0],
+				  func->arguments()[1]);
+			  func->update_used_tables();
+			  change_cond_ref_to_const(save_list, and_level, and_level,
+				  func->arguments()[1],
+				  func->arguments()[0]);
+		  }
       }
     }
   }
