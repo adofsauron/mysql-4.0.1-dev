@@ -628,14 +628,14 @@ JOIN::optimize()
       if (res > 1)
       {
         DBUG_PRINT("error",("Error from opt_sum_query"));
-	DBUG_RETURN(1);
+	    DBUG_RETURN(1);
       }
       if (res < 0)
       {
         DBUG_PRINT("info",("No matching min/max row"));
-	zero_result_cause= "No matching min/max row";
-	error=0;
-	DBUG_RETURN(0);
+	    zero_result_cause= "No matching min/max row";
+	    error=0;
+	    DBUG_RETURN(0);
       }
       DBUG_PRINT("info",("Select tables optimized away"));
       zero_result_cause= "Select tables optimized away";
@@ -2168,8 +2168,8 @@ make_join_statistics(JOIN *join, TABLE_LIST *tables, COND *conds,
       if (!table->file->records && !embedding)
       {						// Empty table
         s->dependent= 0;                        // Ignore LEFT JOIN depend.
-	set_position(join,const_count++,s,(KEYUSE*) 0);
-	continue;
+		set_position(join, const_count++, s, (KEYUSE*)0);
+		continue;
       }
       outer_join|= table->map;
       continue;
@@ -2252,7 +2252,7 @@ make_join_statistics(JOIN *join, TABLE_LIST *tables, COND *conds,
     if ((tmp=join_read_const_table(s, p_pos)))
     {
       if (tmp > 0)
-	DBUG_RETURN(1);			// Fatal error
+	    DBUG_RETURN(1);			// Fatal error
     }
     else
       found_const_table_map|= s->table->map;
@@ -2275,82 +2275,82 @@ make_join_statistics(JOIN *join, TABLE_LIST *tables, COND *conds,
       table=s->table;
       if (s->dependent)				// If dependent on some table
       {
-	// All dep. must be constants
-	if (s->dependent & ~(found_const_table_map))
-	  continue;
-	if (table->file->records <= 1L &&
-	    !(table->file->table_flags() & HA_NOT_EXACT_COUNT) &&
-            !table->pos_in_table_list->embedding)
-	{					// system table
-	  int tmp= 0;
-	  s->type=JT_SYSTEM;
-	  join->const_table_map|=table->map;
-	  set_position(join,const_count++,s,(KEYUSE*) 0);
-	  if ((tmp= join_read_const_table(s,join->positions+const_count-1)))
-	  {
-	    if (tmp > 0)
-	      DBUG_RETURN(1);			// Fatal error
-	  }
-	  else
-	    found_const_table_map|= table->map;
-	  continue;
-	}
+	    // All dep. must be constants
+	    if (s->dependent & ~(found_const_table_map))
+	      continue;
+	    if (table->file->records <= 1L &&
+	        !(table->file->table_flags() & HA_NOT_EXACT_COUNT) &&
+                !table->pos_in_table_list->embedding)
+	    {					// system table
+	      int tmp= 0;
+	      s->type=JT_SYSTEM;
+	      join->const_table_map|=table->map;
+	      set_position(join,const_count++,s,(KEYUSE*) 0);
+	      if ((tmp= join_read_const_table(s,join->positions+const_count-1)))
+	      {
+	        if (tmp > 0)
+	          DBUG_RETURN(1);			// Fatal error
+	      }
+	      else
+	        found_const_table_map|= table->map;
+	      continue;
+	    }
       }
       /* check if table can be read by key or table only uses const refs */
       if ((keyuse=s->keyuse))
       {
-	s->type= JT_REF;
-	while (keyuse->table == table)
-	{
-	  start_keyuse=keyuse;
-	  key=keyuse->key;
-	  s->keys.set_bit(key);               // QQ: remove this ?
-
-	  refs=0;
-          const_ref.clear_all();
-	  eq_part.clear_all();
-	  do
-	  {
-	    if (keyuse->val->type() != Item::NULL_ITEM && !keyuse->optimize)
+	    s->type= JT_REF;
+	    while (keyuse->table == table)
 	    {
-	      if (!((~found_const_table_map) & keyuse->used_tables))
-		const_ref.set_bit(keyuse->keypart);
-	      else
-		refs|=keyuse->used_tables;
-	      eq_part.set_bit(keyuse->keypart);
-	    }
-	    keyuse++;
-	  } while (keyuse->table == table && keyuse->key == key);
+	      start_keyuse=keyuse;
+	      key=keyuse->key;
+	      s->keys.set_bit(key);               // QQ: remove this ?
 
-	  if (eq_part.is_prefix(table->key_info[key].key_parts) &&
-	      ((table->key_info[key].flags & (HA_NOSAME | HA_END_SPACE_KEY)) ==
-	       HA_NOSAME) &&
-              !table->fulltext_searched)
-	  {
-	    if (const_ref == eq_part)
-	    {					// Found everything for ref.
-	      int tmp;
-	      ref_changed = 1;
-	      s->type= JT_CONST;
-	      join->const_table_map|=table->map;
-	      set_position(join,const_count++,s,start_keyuse);
-	      if (create_ref_for_key(join, s, start_keyuse,
-				     found_const_table_map))
-		DBUG_RETURN(1);
-	      if ((tmp=join_read_const_table(s,
-					     join->positions+const_count-1)))
+	      refs=0;
+              const_ref.clear_all();
+	      eq_part.clear_all();
+	      do
 	      {
-		if (tmp > 0)
-		  DBUG_RETURN(1);			// Fatal error
+	        if (keyuse->val->type() != Item::NULL_ITEM && !keyuse->optimize)
+	        {
+	          if (!((~found_const_table_map) & keyuse->used_tables))
+		        const_ref.set_bit(keyuse->keypart);
+	          else
+		        refs|=keyuse->used_tables;
+	          eq_part.set_bit(keyuse->keypart);
+	        }
+	        keyuse++;
+	      } while (keyuse->table == table && keyuse->key == key);
+
+	      if (eq_part.is_prefix(table->key_info[key].key_parts) &&
+	          ((table->key_info[key].flags & (HA_NOSAME | HA_END_SPACE_KEY)) ==
+	           HA_NOSAME) &&
+                  !table->fulltext_searched)
+	      {
+	        if (const_ref == eq_part)
+	        {					// Found everything for ref.
+	          int tmp;
+	          ref_changed = 1;
+	          s->type= JT_CONST;
+	          join->const_table_map|=table->map;
+	          set_position(join,const_count++,s,start_keyuse);
+	          if (create_ref_for_key(join, s, start_keyuse,
+				         found_const_table_map))
+		        DBUG_RETURN(1);
+	          if ((tmp=join_read_const_table(s,
+					         join->positions+const_count-1)))
+	          {
+		        if (tmp > 0)
+		          DBUG_RETURN(1);			// Fatal error
+	          }
+	          else
+		        found_const_table_map|= table->map;
+	          break;
+	        }
+	        else
+	          found_ref|= refs;		// Table is const if all refs are const
 	      }
-	      else
-		found_const_table_map|= table->map;
-	      break;
 	    }
-	    else
-	      found_ref|= refs;		// Table is const if all refs are const
-	  }
-	}
       }
     }
   } while (join->const_table_map & found_ref && ref_changed);
@@ -2403,28 +2403,28 @@ make_join_statistics(JOIN *join, TABLE_LIST *tables, COND *conds,
       select->quick=0;
       if (records == 0 && s->table->reginfo.impossible_range)
       {
-	/*
-	  Impossible WHERE or ON expression
-	  In case of ON, we mark that the we match one empty NULL row.
-	  In case of WHERE, don't set found_const_table_map to get the
-	  caller to abort with a zero row result.
-	*/
-	join->const_table_map|= s->table->map;
-	set_position(join,const_count++,s,(KEYUSE*) 0);
-	s->type= JT_CONST;
-	if (*s->on_expr_ref)
-	{
-	  /* Generate empty row */
-	  s->info= "Impossible ON condition";
-	  found_const_table_map|= s->table->map;
-	  s->type= JT_CONST;
-	  mark_as_null_row(s->table);		// All fields are NULL
-	}
+	    /*
+	      Impossible WHERE or ON expression
+	      In case of ON, we mark that the we match one empty NULL row.
+	      In case of WHERE, don't set found_const_table_map to get the
+	      caller to abort with a zero row result.
+	    */
+	    join->const_table_map|= s->table->map;
+	    set_position(join,const_count++,s,(KEYUSE*) 0);
+	    s->type= JT_CONST;
+	    if (*s->on_expr_ref)
+	    {
+	      /* Generate empty row */
+	      s->info= "Impossible ON condition";
+	      found_const_table_map|= s->table->map;
+	      s->type= JT_CONST;
+	      mark_as_null_row(s->table);		// All fields are NULL
+	    }
       }
       if (records != HA_POS_ERROR)
       {
-	s->found_records=records;
-	s->read_time= (ha_rows) (s->quick ? s->quick->read_time : 0.0);
+	    s->found_records=records;
+	    s->read_time= (ha_rows) (s->quick ? s->quick->read_time : 0.0);
       }
       delete select;
     }
